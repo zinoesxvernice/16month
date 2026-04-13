@@ -90,31 +90,89 @@
       position: relative; overflow: hidden;
     }
 
-    /* ── IMAGE FIT FIX ── */
-    .yt-player-thumb img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
+    /* ── FLASHING TEXT THUMBNAIL ── */
+    .yt-player-thumb {
+      background: linear-gradient(135deg, #1a0010 0%, #2d0828 50%, #0d0018 100%) !important;
     }
 
-    /* Hide placeholder text when image is present and loaded */
-    .yt-player-thumb img + .yt-thumb-text {
-      display: none;
-    }
-
-    .yt-thumb-text {
+    .flash-stage {
       position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 10px; pointer-events: none;
-      z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1; overflow: hidden;
     }
-    .yt-thumb-icon { font-size: 2.5rem; opacity: 0.25; }
-    .yt-thumb-hint { font-size: 0.75rem; color: #666; letter-spacing: 0.08em; }
+
+    /* soft bokeh blobs behind text */
+    .flash-stage::before, .flash-stage::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.18;
+      animation: blobpulse 4s ease-in-out infinite alternate;
+    }
+    .flash-stage::before {
+      width: 280px; height: 280px;
+      background: #ff4d8f;
+      top: -60px; left: -60px;
+    }
+    .flash-stage::after {
+      width: 220px; height: 220px;
+      background: #c47aff;
+      bottom: -40px; right: -40px;
+      animation-delay: 2s;
+    }
+    @keyframes blobpulse {
+      from { transform: scale(1); opacity: 0.18; }
+      to   { transform: scale(1.3); opacity: 0.28; }
+    }
+
+    .flash-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.6rem, 5vw, 3.2rem);
+      font-weight: 600;
+      font-style: italic;
+      text-align: center;
+      line-height: 1.3;
+      letter-spacing: 0.02em;
+      padding: 0 24px;
+      position: relative; z-index: 2;
+      animation: flashCycle 0.08s steps(1) infinite;
+      /* shimmer gradient */
+      background: linear-gradient(90deg, #ff85b3, #ffb3d1, #e879f9, #ff85b3);
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 2.5s linear infinite, flashCycle 3s steps(1) infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 300% 50%; }
+    }
+    @keyframes flashCycle {
+      0%   { opacity: 1; }
+      92%  { opacity: 1; }
+      93%  { opacity: 0; }
+      96%  { opacity: 1; }
+      97%  { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    /* sparkle dots scattered around */
+    .spark {
+      position: absolute;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: white;
+      animation: sparkle var(--d) ease-in-out infinite var(--dl);
+      z-index: 2;
+    }
+    @keyframes sparkle {
+      0%,100% { opacity: 0; transform: scale(0); }
+      50%      { opacity: 1; transform: scale(1.4); }
+    }
+
+    .yt-thumb-text { display: none; }
 
     .yt-petal-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 2; }
     .yt-petal {
@@ -470,11 +528,10 @@
       <!-- Video -->
       <div class="yt-player" onclick="scrollToReasons()">
         <div class="yt-player-thumb">
-          <img src="1284c64fc4cc8c05939613923ee7ccf5.png" alt="us">
-          <div class="yt-thumb-text" id="thumbText">
-            <div class="yt-thumb-icon">📷</div>
-            <div class="yt-thumb-hint">replace with your favourite photo together</div>
+          <div class="flash-stage" id="flashStage">
+            <div class="flash-text" id="flashText">i love you</div>
           </div>
+          <div class="yt-thumb-text" id="thumbText"></div>
           <div class="yt-petal-layer" id="ytPetals"></div>
         </div>
         <div class="yt-play-overlay">
@@ -599,7 +656,47 @@
   </div>
 
   <script>
-    // Show mobile search bar on small screens
+    // Flash text cycling
+    const flashMessages = [
+      "i love you",
+      "you're my favorite person 🌸",
+      "genuinely obsessed with you",
+      "my heart is so full",
+      "you make everything better",
+      "i chose you every single day",
+      "you're everything ♡",
+      "still can't believe you're mine",
+      "my safe place 🫶",
+      "i adore you so much",
+      "forever grateful for you",
+      "you make me so happy",
+    ];
+    const flashEl = document.getElementById('flashText');
+    let fi = 0;
+    function cycleFlash() {
+      flashEl.style.opacity = '0';
+      flashEl.style.transform = 'translateY(10px)';
+      flashEl.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+      setTimeout(() => {
+        fi = (fi + 1) % flashMessages.length;
+        flashEl.textContent = flashMessages[fi];
+        flashEl.style.opacity = '1';
+        flashEl.style.transform = 'translateY(0)';
+      }, 400);
+    }
+    setInterval(cycleFlash, 2800);
+
+    // Sparkle dots
+    const flashStage = document.getElementById('flashStage');
+    const sparkPositions = [
+      [15,20],[80,15],[90,70],[10,75],[50,8],[45,88],[72,40],[25,55],[60,25],[35,72]
+    ];
+    sparkPositions.forEach(([x,y], i) => {
+      const s = document.createElement('div');
+      s.className = 'spark';
+      s.style.cssText = `left:${x}%;top:${y}%;--d:${1.4+i*0.3}s;--dl:${i*0.2}s;`;
+      flashStage.appendChild(s);
+    });
     function checkMobileSearch() {
       document.getElementById('mobileSearch').style.display =
         window.innerWidth <= 600 ? 'flex' : 'none';
