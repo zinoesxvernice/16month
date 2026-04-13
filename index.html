@@ -19,7 +19,7 @@
       padding: 0 16px; gap: 8px;
       border-bottom: 1px solid #272727;
     }
-    .yt-nav-left { display: flex; align-items: center; gap: 16px; }
+    .yt-nav-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
     .yt-hamburger {
       width: 40px; height: 40px;
       display: flex; align-items: center; justify-content: center;
@@ -36,24 +36,26 @@
     .yt-logo-text { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; }
     .yt-logo-text span { color: #ff0033; }
 
-    .yt-nav-center { flex: 1; display: flex; align-items: center; justify-content: center; max-width: 640px; margin: 0 auto; }
-    .yt-search-wrap { display: flex; flex: 1; max-width: 480px; }
+    .yt-nav-center { flex: 1; display: flex; align-items: center; justify-content: center; max-width: 640px; margin: 0 auto; min-width: 0; }
+    .yt-search-wrap { display: flex; flex: 1; max-width: 480px; width: 100%; }
     .yt-search-wrap input {
       flex: 1; background: #121212;
       border: 1px solid #303030; border-right: none;
       border-radius: 40px 0 0 40px;
       padding: 8px 16px; color: #f1f1f1;
       font-size: 0.9rem; outline: none;
+      min-width: 0;
     }
     .yt-search-wrap input:focus { border-color: #1c62b9; }
     .yt-search-btn {
       background: #222; border: 1px solid #303030; border-left: none;
       border-radius: 0 40px 40px 0;
       padding: 0 18px; font-size: 1rem; transition: background .15s;
+      flex-shrink: 0;
     }
     .yt-search-btn:hover { background: #303030; }
 
-    .yt-nav-right { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+    .yt-nav-right { display: flex; align-items: center; gap: 4px; margin-left: auto; flex-shrink: 0; }
     .yt-nav-icon {
       width: 40px; height: 40px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
@@ -87,17 +89,34 @@
       display: flex; align-items: center; justify-content: center;
       position: relative; overflow: hidden;
     }
-    .yt-player-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* ── IMAGE FIT FIX ── */
+    .yt-player-thumb img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    /* Hide placeholder text when image is present and loaded */
+    .yt-player-thumb img + .yt-thumb-text {
+      display: none;
+    }
+
     .yt-thumb-text {
       position: absolute; inset: 0;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       gap: 10px; pointer-events: none;
+      z-index: 1;
     }
     .yt-thumb-icon { font-size: 2.5rem; opacity: 0.25; }
     .yt-thumb-hint { font-size: 0.75rem; color: #666; letter-spacing: 0.08em; }
 
-    .yt-petal-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .yt-petal-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 2; }
     .yt-petal {
       position: absolute; top: -10px;
       opacity: 0.2; animation: ytfall linear infinite;
@@ -113,6 +132,7 @@
       align-items: center; justify-content: center; gap: 14px;
       background: rgba(0,0,0,0.25);
       opacity: 0; transition: opacity .2s;
+      z-index: 3;
     }
     .yt-player:hover .yt-play-overlay { opacity: 1; }
     .yt-play-btn-big {
@@ -132,7 +152,7 @@
     }
     .yt-play-hint { font-size: 0.78rem; color: rgba(255,255,255,0.65); letter-spacing: 0.12em; }
 
-    .yt-progress-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: #333; }
+    .yt-progress-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: #333; z-index: 4; }
     .yt-progress-fill { height: 100%; width: 0; background: #ff0033; transition: width .3s; }
 
     /* ── VIDEO INFO ── */
@@ -186,7 +206,7 @@
       padding: 14px 16px; margin-top: 14px;
       font-size: 0.88rem; line-height: 1.7;
     }
-    .yt-desc-meta { display: flex; gap: 14px; font-weight: 500; margin-bottom: 8px; }
+    .yt-desc-meta { display: flex; gap: 14px; font-weight: 500; margin-bottom: 8px; flex-wrap: wrap; }
     .yt-desc-meta span { color: #aaa; font-weight: 400; }
     .yt-desc-body { color: #d4d4d4; }
     .yt-hashtags { color: #3ea6ff; margin-top: 8px; font-size: 0.85rem; }
@@ -214,7 +234,7 @@
       justify-content: space-between; margin-bottom: 14px;
     }
     .yt-autoplay-label { font-size: 0.85rem; font-weight: 500; }
-    .yt-toggle { width: 36px; height: 20px; background: #3ea6ff; border-radius: 20px; position: relative; cursor: pointer; }
+    .yt-toggle { width: 36px; height: 20px; background: #3ea6ff; border-radius: 20px; position: relative; cursor: pointer; flex-shrink: 0; }
     .yt-toggle::after { content:''; position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; background: white; border-radius: 50%; }
     .yt-playlist-label { font-size: 0.78rem; color: #aaa; letter-spacing: 0.06em; margin-bottom: 14px; text-transform: uppercase; }
 
@@ -313,8 +333,100 @@
     .footer h3 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.6rem, 3vw, 2.2rem); font-style: italic; font-weight: 300; color: var(--text); margin-bottom: 12px; }
     .footer p { font-family: 'Nunito', sans-serif; font-size: 0.8rem; color: var(--text-light); letter-spacing: 0.12em; }
 
-    @media (max-width: 1008px) { .yt-sidebar { display: none; } .yt-body { padding: 16px 16px 0; } }
-    @media (max-width: 600px) { .yt-nav-center { display: none; } .cards-grid { grid-template-columns: 1fr; padding: 30px 16px 70px; } }
+    /* ══════════════════════════════════════
+       RESPONSIVE — all breakpoints
+    ══════════════════════════════════════ */
+
+    /* Large desktop — sidebar visible */
+    @media (min-width: 1009px) {
+      .yt-sidebar { display: block; }
+    }
+
+    /* Tablet landscape / small desktop — hide sidebar */
+    @media (max-width: 1008px) {
+      .yt-sidebar { display: none; }
+      .yt-body { padding: 16px 16px 0; }
+      .cards-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    }
+
+    /* Tablet portrait */
+    @media (max-width: 768px) {
+      .yt-nav-center { display: flex; flex: 1; margin: 0 8px; }
+      .yt-search-wrap input { font-size: 0.82rem; padding: 7px 12px; }
+      .yt-search-btn { padding: 0 12px; }
+      .yt-logo-text { display: none; }
+      .yt-video-title { font-size: 1rem; }
+      .yt-actions { gap: 4px; }
+      .yt-action-btn { padding: 7px 10px; font-size: 0.78rem; }
+      .cards-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; padding: 30px 16px 70px; }
+      .section-header { padding: 50px 16px 16px; }
+    }
+
+    /* Mobile — hide search bar in nav, show icon instead */
+    @media (max-width: 600px) {
+      .yt-nav { padding: 0 10px; gap: 4px; }
+      .yt-nav-center { display: none; }
+      .yt-hamburger { display: none; }
+      .yt-logo-text { display: flex; }
+
+      /* Full-width search below nav */
+      .yt-mobile-search {
+        display: flex;
+        padding: 8px 12px;
+        background: #0f0f0f;
+        border-bottom: 1px solid #1e1e1e;
+      }
+      .yt-mobile-search input {
+        flex: 1; background: #1a1a1a;
+        border: 1px solid #303030; border-right: none;
+        border-radius: 40px 0 0 40px;
+        padding: 8px 14px; color: #f1f1f1;
+        font-size: 0.88rem; outline: none;
+      }
+      .yt-mobile-search button {
+        background: #222; border: 1px solid #303030; border-left: none;
+        border-radius: 0 40px 40px 0;
+        padding: 0 14px; font-size: 1rem; cursor: pointer; color: #f1f1f1;
+      }
+
+      .yt-body { padding: 12px 12px 0; }
+      .yt-player { border-radius: 8px; }
+
+      .yt-video-title { font-size: 0.95rem; margin-top: 10px; }
+      .yt-views { font-size: 0.78rem; }
+      .yt-actions { gap: 4px; }
+      .yt-action-btn { padding: 6px 10px; font-size: 0.76rem; gap: 4px; }
+
+      .yt-channel-row { gap: 8px; }
+      .yt-ch-name { font-size: 0.88rem; }
+      .yt-subscribe-btn { padding: 8px 14px; font-size: 0.82rem; }
+
+      .yt-description { padding: 12px 14px; font-size: 0.84rem; }
+
+      .yt-comment-text { font-size: 0.84rem; }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+        padding: 24px 12px 60px;
+        gap: 14px;
+      }
+      .card-photo { height: 180px; }
+
+      .section-header { padding: 40px 12px 12px; }
+      .section-header h2 { font-size: clamp(1.5rem, 6vw, 2rem); }
+
+      .footer { padding: 50px 16px; }
+      .transition-block { height: 80px; }
+
+      .yt-section { padding-bottom: 32px; }
+    }
+
+    /* Very small phones */
+    @media (max-width: 380px) {
+      .yt-logo-text { font-size: 0.95rem; }
+      .yt-video-title { font-size: 0.88rem; }
+      .yt-action-btn span, .yt-action-btn { font-size: 0.72rem; padding: 5px 8px; }
+    }
   </style>
 </head>
 <body>
@@ -345,6 +457,12 @@
       <div class="yt-avatar-btn">Y</div>
     </div>
   </nav>
+
+  <!-- Mobile search bar (shown on ≤600px) -->
+  <div class="yt-mobile-search" style="display:none;" id="mobileSearch">
+    <input type="text" value="[Her Name] 💕" readonly>
+    <button>🔍</button>
+  </div>
 
   <div class="yt-body yt-section">
     <div class="yt-main">
@@ -481,6 +599,14 @@
   </div>
 
   <script>
+    // Show mobile search bar on small screens
+    function checkMobileSearch() {
+      document.getElementById('mobileSearch').style.display =
+        window.innerWidth <= 600 ? 'flex' : 'none';
+    }
+    checkMobileSearch();
+    window.addEventListener('resize', checkMobileSearch);
+
     // ══════════════════════════════════════════════════════
     // 💛 CUSTOMIZE YOUR 16 REASONS BELOW
     // For photos: set  photo: "photos/01.jpg"
