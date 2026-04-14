@@ -819,6 +819,8 @@ window.addEventListener('scroll', () => {
       const card = document.createElement('div');
       card.className = 'card';
       card.style.transitionDelay = `${(i % 3) * 0.08}s`;
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => openModal(r, i));
 
       // Card photo: image if set, otherwise gradient placeholder
       const cardPhotoHTML = r.photo
@@ -1009,8 +1011,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
     for (let i = 0; i < 8; i++) mkYtPetal();
     setInterval(mkYtPetal, 700);
 
-
-<div class="card-modal-overlay" id="cardModalOverlay">
+  </script>
+  <div class="card-modal-overlay" id="cardModalOverlay">
   <div class="card-modal" id="cardModal">
     <button class="card-modal-close" id="cardModalClose">✕</button>
     <div class="card-modal-photo" id="cardModalPhoto">
@@ -1024,6 +1026,5 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   </div>
 </div>
     
-  </script>
 </body>
 </html>
