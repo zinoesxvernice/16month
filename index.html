@@ -10,6 +10,49 @@
     body { background: #0f0f0f; color: #f1f1f1; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
     button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; }
 
+    /* ── SCROLL INDICATOR ── */
+.scroll-indicator {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 999;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+.scroll-indicator.hidden { opacity: 0; }
+.scroll-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  font-family: 'Nunito', sans-serif;
+}
+.scroll-arrow {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  display: flex; align-items: center; justify-content: center;
+  animation: bounceArrow 1.6s ease-in-out infinite;
+}
+.scroll-arrow svg {
+  width: 16px; height: 16px;
+  stroke: rgba(255,255,255,0.7);
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@keyframes bounceArrow {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(8px); }
+}
     /* ── NAVBAR ── */
     .yt-nav {
       position: sticky; top: 0; z-index: 100;
@@ -484,6 +527,13 @@
     </div>
   </nav>
 
+  <div class="scroll-indicator" id="scrollIndicator">
+  <span class="scroll-label">scroll</span>
+  <div class="scroll-arrow">
+    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+</div>
+
   <div class="yt-mobile-search" style="display:none;" id="mobileSearch">
     <input type="text" value="Vernice 💕" readonly>
     <button>🔍</button>
@@ -613,6 +663,10 @@
   </div>
 
   <script>
+    const scrollIndicator = document.getElementById('scrollIndicator');
+window.addEventListener('scroll', () => {
+  scrollIndicator.classList.toggle('hidden', window.scrollY > 80);
+});
     // ══════════════════════════════════════════════════════
     // 💛 YOUR 16 REASONS
     //
