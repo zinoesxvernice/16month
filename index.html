@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube</title>
+  <title>LoveTube</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -85,14 +85,9 @@
     }
     .yt-player-thumb {
       width: 100%; height: 100%;
-      background: linear-gradient(135deg, #1a0a14 0%, #2d1020 40%, #180d1a 100%);
+      background: linear-gradient(135deg, #1a0010 0%, #2d0828 50%, #0d0018 100%);
       display: flex; align-items: center; justify-content: center;
       position: relative; overflow: hidden;
-    }
-
-    /* ── FLASHING TEXT THUMBNAIL ── */
-    .yt-player-thumb {
-      background: linear-gradient(135deg, #1a0010 0%, #2d0828 50%, #0d0018 100%) !important;
     }
 
     .flash-stage {
@@ -100,8 +95,6 @@
       display: flex; align-items: center; justify-content: center;
       z-index: 1; overflow: hidden;
     }
-
-    /* soft bokeh blobs behind text */
     .flash-stage::before, .flash-stage::after {
       content: '';
       position: absolute;
@@ -136,8 +129,6 @@
       letter-spacing: 0.02em;
       padding: 0 24px;
       position: relative; z-index: 2;
-      animation: flashCycle 0.08s steps(1) infinite;
-      /* shimmer gradient */
       background: linear-gradient(90deg, #ff85b3, #ffb3d1, #e879f9, #ff85b3);
       background-size: 300% 100%;
       -webkit-background-clip: text;
@@ -158,7 +149,6 @@
       100% { opacity: 1; }
     }
 
-    /* sparkle dots scattered around */
     .spark {
       position: absolute;
       width: 4px; height: 4px;
@@ -171,8 +161,6 @@
       0%,100% { opacity: 0; transform: scale(0); }
       50%      { opacity: 1; transform: scale(1.4); }
     }
-
-    .yt-thumb-text { display: none; }
 
     .yt-petal-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 2; }
     .yt-petal {
@@ -308,13 +296,20 @@
       position: relative; overflow: hidden;
       display: flex; align-items: center; justify-content: center;
     }
-    .yt-rec-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    /* Sidebar thumbnail image */
+    .yt-rec-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 8px;
+    }
     .yt-rec-thumb-emoji { font-size: 1.6rem; opacity: 0.45; }
     .yt-rec-duration {
       position: absolute; bottom: 4px; right: 6px;
       background: rgba(0,0,0,0.85); color: white;
       font-size: 0.7rem; font-weight: 500;
       padding: 1px 5px; border-radius: 3px;
+      z-index: 1;
     }
     .yt-rec-info { flex: 1; min-width: 0; }
     .yt-rec-title {
@@ -375,11 +370,16 @@
       display: flex; align-items: center; justify-content: center;
       position: relative; overflow: hidden;
     }
-    .card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* Card photo image */
+    .card-photo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
     .photo-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-light); opacity: 0.45; }
     .photo-placeholder svg { width: 34px; height: 34px; }
     .photo-placeholder span { font-size: 0.72rem; letter-spacing: 0.08em; font-family: 'Nunito', sans-serif; }
-    .card-number { position: absolute; top: 10px; left: 14px; font-family: 'Cormorant Garamond', serif; font-size: 3.2rem; font-weight: 600; color: white; opacity: 0.28; line-height: 1; pointer-events: none; }
+    .card-number { position: absolute; top: 10px; left: 14px; font-family: 'Cormorant Garamond', serif; font-size: 3.2rem; font-weight: 600; color: white; opacity: 0.28; line-height: 1; pointer-events: none; z-index: 1; }
     .card-body { padding: 18px 22px 24px; }
     .card-tag { display: inline-block; font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mauve); background: var(--blush); padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; font-family: 'Nunito', sans-serif; }
     .card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 600; color: var(--text); margin-bottom: 8px; line-height: 1.25; }
@@ -391,23 +391,13 @@
     .footer h3 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.6rem, 3vw, 2.2rem); font-style: italic; font-weight: 300; color: var(--text); margin-bottom: 12px; }
     .footer p { font-family: 'Nunito', sans-serif; font-size: 0.8rem; color: var(--text-light); letter-spacing: 0.12em; }
 
-    /* ══════════════════════════════════════
-       RESPONSIVE — all breakpoints
-    ══════════════════════════════════════ */
-
-    /* Large desktop — sidebar visible */
-    @media (min-width: 1009px) {
-      .yt-sidebar { display: block; }
-    }
-
-    /* Tablet landscape / small desktop — hide sidebar */
+    /* ══ RESPONSIVE ══ */
+    @media (min-width: 1009px) { .yt-sidebar { display: block; } }
     @media (max-width: 1008px) {
       .yt-sidebar { display: none; }
       .yt-body { padding: 16px 16px 0; }
       .cards-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
     }
-
-    /* Tablet portrait */
     @media (max-width: 768px) {
       .yt-nav-center { display: flex; flex: 1; margin: 0 8px; }
       .yt-search-wrap input { font-size: 0.82rem; padding: 7px 12px; }
@@ -419,15 +409,11 @@
       .cards-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; padding: 30px 16px 70px; }
       .section-header { padding: 50px 16px 16px; }
     }
-
-    /* Mobile — hide search bar in nav, show icon instead */
     @media (max-width: 600px) {
       .yt-nav { padding: 0 10px; gap: 4px; }
       .yt-nav-center { display: none; }
       .yt-hamburger { display: none; }
       .yt-logo-text { display: flex; }
-
-      /* Full-width search below nav */
       .yt-mobile-search {
         display: flex;
         padding: 8px 12px;
@@ -446,40 +432,25 @@
         border-radius: 0 40px 40px 0;
         padding: 0 14px; font-size: 1rem; cursor: pointer; color: #f1f1f1;
       }
-
       .yt-body { padding: 12px 12px 0; }
       .yt-player { border-radius: 8px; }
-
       .yt-video-title { font-size: 0.95rem; margin-top: 10px; }
       .yt-views { font-size: 0.78rem; }
       .yt-actions { gap: 4px; }
       .yt-action-btn { padding: 6px 10px; font-size: 0.76rem; gap: 4px; }
-
       .yt-channel-row { gap: 8px; }
       .yt-ch-name { font-size: 0.88rem; }
       .yt-subscribe-btn { padding: 8px 14px; font-size: 0.82rem; }
-
       .yt-description { padding: 12px 14px; font-size: 0.84rem; }
-
       .yt-comment-text { font-size: 0.84rem; }
-
-      .cards-grid {
-        grid-template-columns: 1fr;
-        padding: 24px 12px 60px;
-        gap: 14px;
-      }
+      .cards-grid { grid-template-columns: 1fr; padding: 24px 12px 60px; gap: 14px; }
       .card-photo { height: 180px; }
-
       .section-header { padding: 40px 12px 12px; }
       .section-header h2 { font-size: clamp(1.5rem, 6vw, 2rem); }
-
       .footer { padding: 50px 16px; }
       .transition-block { height: 80px; }
-
       .yt-section { padding-bottom: 32px; }
     }
-
-    /* Very small phones */
     @media (max-width: 380px) {
       .yt-logo-text { font-size: 0.95rem; }
       .yt-video-title { font-size: 0.88rem; }
@@ -491,7 +462,6 @@
 
   <div id="petals"></div>
 
-  <!-- ════ LOVETUBE ════ -->
   <nav class="yt-nav">
     <div class="yt-nav-left">
       <button class="yt-hamburger">☰</button>
@@ -504,34 +474,29 @@
     </div>
     <div class="yt-nav-center">
       <div class="yt-search-wrap">
-        <!-- 💛 Replace [Her Name] with her actual name -->
         <input type="text" value="Vernice 💕" readonly>
         <button class="yt-search-btn">🔍</button>
       </div>
     </div>
     <div class="yt-nav-right">
       <button class="yt-nav-icon">🔔</button>
-      <!-- 💛 Replace "Y" with your initial -->
       <div class="yt-avatar-btn">R</div>
     </div>
   </nav>
 
-  <!-- Mobile search bar (shown on ≤600px) -->
   <div class="yt-mobile-search" style="display:none;" id="mobileSearch">
-    <input type="text" value="[Her Name] 💕" readonly>
+    <input type="text" value="Vernice 💕" readonly>
     <button>🔍</button>
   </div>
 
   <div class="yt-body yt-section">
     <div class="yt-main">
 
-      <!-- Video -->
       <div class="yt-player" onclick="scrollToReasons()">
         <div class="yt-player-thumb">
           <div class="flash-stage" id="flashStage">
             <div class="flash-text" id="flashText">i love you</div>
           </div>
-          <div class="yt-thumb-text" id="thumbText"></div>
           <div class="yt-petal-layer" id="ytPetals"></div>
         </div>
         <div class="yt-play-overlay">
@@ -556,7 +521,6 @@
       </div>
 
       <div class="yt-channel-row">
-        <!-- 💛 Replace "Y" and channel name with yours -->
         <div class="yt-ch-avatar">Ryan</div>
         <div class="yt-ch-info">
           <div class="yt-ch-name">Ryan ✔</div>
@@ -570,7 +534,6 @@
           <span>1,600,000 views</span>
           <span>16 months ago</span>
         </div>
-        <!-- 💛 Write your personal message here -->
         <div class="yt-desc-body">
           Hi Vernice 🌸  I made this for you.<br><br>
           16 months (maybe 13.5 in reality but anyways) with you has been the best thing that's ever happened to me.
@@ -585,7 +548,6 @@
       <div class="yt-comment">
         <div class="yt-comment-avatar" style="background:linear-gradient(135deg,#80cbc4,#4dd0e1);">B</div>
         <div>
-          <!-- 💛 Replace with your bestfriend's name -->
           <div class="yt-comment-name">deadman123 <span>2 weeks ago</span></div>
           <div class="yt-comment-text">wow</div>
           <div class="yt-comment-actions">
@@ -596,7 +558,6 @@
       </div>
 
       <div class="yt-comment">
-        <!-- 💛 Replace initial with hers -->
         <div class="yt-comment-avatar" style="background:linear-gradient(135deg,#f48fb1,#ce93d8);">H</div>
         <div>
           <div class="yt-comment-name">aliveboy123 <span>just now</span></div>
@@ -622,7 +583,6 @@
 
     </div>
 
-    <!-- Sidebar -->
     <div class="yt-sidebar">
       <div class="yt-autoplay-row">
         <span class="yt-autoplay-label">Autoplay</span>
@@ -633,10 +593,8 @@
     </div>
   </div>
 
-  <!-- Transition -->
   <div class="transition-block"></div>
 
-  <!-- ════ PASTEL SECTION ════ -->
   <div class="pastel-section" id="reasonsSection">
     <div class="section-header">
       <h2>Because you deserve to know <em>why</em></h2>
@@ -650,13 +608,117 @@
     <footer class="footer">
       <div class="footer-icon">🌸</div>
       <h3>&amp; so many more reasons every single day</h3>
-      <!-- 💛 Replace names -->
-      <p>made with love · Ryan Van Ignacio → Vernice · 16 months 🤍</p>
+      <p>made with love · Ryan → Vernice · 16 months 🤍</p>
     </footer>
   </div>
 
   <script>
-    // Flash text cycling
+    // ══════════════════════════════════════════════════════
+    // 💛 YOUR 16 REASONS
+    //
+    // photo: set a path or URL to show an image, e.g.:
+    //   photo: "photos/01.jpg"
+    //   photo: "https://raw.githubusercontent.com/youruser/yourrepo/main/photos/01.jpg"
+    //
+    // Leave photo as "" to show the gradient + emoji fallback instead.
+    //
+    // The same photo shows in BOTH the sidebar thumbnail
+    // and the card. Use different keys if you want them separate:
+    //   cardPhoto: "photos/01.jpg"
+    //   sidebarPhoto: "photos/01-thumb.jpg"
+    // (see rendering code below)
+    // ══════════════════════════════════════════════════════
+    const reasons = [
+      { tag:"Your smile",    title:"Your smile lights up my world",       text:"The way your eyes crinkle when you laugh genuinely — it's my favorite thing to witness. Nothing else compares.",                          photo:"https://raw.githubusercontent.com/zinoesxvernice/16month/refs/heads/main/reason1.jpg", emoji:"😊" },
+      { tag:"Your kindness", title:"How kind you are to everyone",         text:"You treat every person you meet with such genuine warmth. I notice it every time and fall in love all over again.",                       photo:"https://raw.githubusercontent.com/zinoesxvernice/16month/refs/heads/main/2B6D470F-3AD3-4438-958F-36B54CFD7935.jpg", emoji:"🥰" },
+      { tag:"Little habits", title:"Your silly little habits",             text:"The little things I never thought I'd adore — I adore them all. They're perfectly, unmistakably you.",                                    photo:"https://raw.githubusercontent.com/zinoesxvernice/16month/refs/heads/main/ACB02B04-EBE4-4935-B7EA-7BB12E91471E.jpg", emoji:"😄" },
+      { tag:"Your laugh",    title:"The sound of your laugh",              text:"It's contagious. Even on my hardest days, hearing you laugh is an instant, irreplaceable remedy.",                                        photo:"", emoji:"😂" },
+      { tag:"Your strength", title:"Your quiet resilience",                text:"The way you face challenges with grace and composure inspires me every day. You're stronger than you know.",                              photo:"", emoji:"💪" },
+      { tag:"Your heart",    title:"The size of your heart",               text:"The love you give to the people around you shows just how beautiful and endless your heart truly is.",                                    photo:"", emoji:"💕" },
+      { tag:"Being us",      title:"How comfortable I am with you",        text:"Around you, I don't have to pretend or perform. I can just be myself. That is the rarest, most beautiful gift.",                         photo:"", emoji:"🏠" },
+      { tag:"Your passion",  title:"Your passion for things you love",     text:"When you talk about the things you care about, your whole face changes. I could listen to you forever.",                                  photo:"", emoji:"✨" },
+      { tag:"Small moments", title:"The small moments we share",           text:"Late nights, early mornings, quiet afternoons — ordinary moments become extraordinary just because you're there.",                        photo:"", emoji:"🌙" },
+      { tag:"Your support",  title:"How you always believe in me",         text:"Even when I doubt myself, you never do. Your unwavering faith in me pushes me to become a better person.",                               photo:"", emoji:"🌟" },
+      { tag:"Your eyes",     title:"The way you look at me",               text:"There's a certain look you give me that makes me feel like I'm the only person in the world. I never want to stop seeing it.",            photo:"", emoji:"👀" },
+      { tag:"Your wit",      title:"Your humor and quick wit",             text:"You make everything more fun. You find joy in the smallest things, and it is completely infectious.",                                     photo:"", emoji:"😂" },
+      { tag:"Growing",       title:"How we grow together",                 text:"We're not the same people we were at month one — and I love who we're becoming, together, side by side.",                                 photo:"", emoji:"🌱" },
+      { tag:"Safety",        title:"How safe I feel with you",             text:"There's nowhere in the world I feel more at peace than when I'm with you. You are my safe place.",                                        photo:"", emoji:"🛡️" },
+      { tag:"The details",   title:"You remember the little things",       text:"My favorite snack. A random thing I mentioned weeks ago. You remember. It's such a small thing that means everything.",                  photo:"", emoji:"💝" },
+      { tag:"Simply you",    title:"Because you are simply you",           text:"If I had just one reason, it would be this. Everything you are — everything that makes you, you — is why I love you, completely.",        photo:"", emoji:"🫵" }
+    ];
+
+    // Gradient fallbacks for sidebar when no photo
+    const grads = [
+      ['#f06292','#ba68c8'],['#80cbc4','#4dd0e1'],['#ffb74d','#ff8a65'],['#a5d6a7','#4db6ac'],
+      ['#90caf9','#7986cb'],['#f48fb1','#f8bbd0'],['#bcaaa4','#8d6e63'],['#ffe082','#ffca28'],
+      ['#ef9a9a','#e57373'],['#b39ddb','#9575cd'],['#80deea','#4fc3f7'],['#c8e6c9','#81c784'],
+      ['#ffcc80','#ffa726'],['#b0bec5','#78909c'],['#f48fb1','#e91e63'],['#f06292','#ad1457']
+    ];
+
+    // ── Render cards ──
+    const grid = document.getElementById('cardsGrid');
+    reasons.forEach((r, i) => {
+      const num = String(i + 1).padStart(2, '0');
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.transitionDelay = `${(i % 3) * 0.08}s`;
+
+      // Card photo: image if set, otherwise gradient placeholder
+      const cardPhotoHTML = r.photo
+        ? `<img src="${r.photo}" alt="${r.title}" loading="lazy">`
+        : `<div class="photo-placeholder">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+               <circle cx="12" cy="13" r="4"/>
+             </svg>
+             <span>add a photo</span>
+           </div>`;
+
+      card.innerHTML = `
+        <div class="card-photo">
+          ${cardPhotoHTML}
+          <div class="card-number">${num}</div>
+        </div>
+        <div class="card-body">
+          <span class="card-tag">${r.tag}</span>
+          <h3>${r.title}</h3>
+          <p>${r.text}</p>
+        </div>`;
+      grid.appendChild(card);
+    });
+
+    // ── Render sidebar ──
+    const sidebar = document.getElementById('sidebarItems');
+    reasons.forEach((r, i) => {
+      const [c1, c2] = grads[i];
+      const num = String(i + 1).padStart(2, '0');
+      const el = document.createElement('div');
+      el.className = 'yt-rec-item';
+      el.onclick = scrollToReasons;
+
+      // Sidebar thumbnail: image if set, otherwise gradient + emoji
+      const thumbInner = r.photo
+        ? `<img src="${r.photo}" alt="${r.title}" loading="lazy">`
+        : `<div class="yt-rec-thumb-emoji">${r.emoji}</div>`;
+
+      const thumbStyle = r.photo
+        ? ``
+        : `style="background:linear-gradient(135deg,${c1},${c2})"`;
+
+      el.innerHTML = `
+        <div class="yt-rec-thumb" ${thumbStyle}>
+          ${thumbInner}
+          <span class="yt-rec-duration">${num}</span>
+        </div>
+        <div class="yt-rec-info">
+          <div class="yt-rec-title">Reason #${i + 1}: ${r.title}</div>
+          <div class="yt-rec-channel">Ryan</div>
+          <div class="yt-rec-meta">${(i + 1) * 100}K views</div>
+        </div>`;
+      sidebar.appendChild(el);
+    });
+
+    // ── Flash text ──
     const flashMessages = [
       "i love you",
       "you're my favorite person 🌸",
@@ -686,116 +748,61 @@
     }
     setInterval(cycleFlash, 2800);
 
-    // Sparkle dots
+    // ── Sparkles ──
     const flashStage = document.getElementById('flashStage');
-    const sparkPositions = [
-      [15,20],[80,15],[90,70],[10,75],[50,8],[45,88],[72,40],[25,55],[60,25],[35,72]
-    ];
-    sparkPositions.forEach(([x,y], i) => {
+    [[15,20],[80,15],[90,70],[10,75],[50,8],[45,88],[72,40],[25,55],[60,25],[35,72]].forEach(([x,y], i) => {
       const s = document.createElement('div');
       s.className = 'spark';
       s.style.cssText = `left:${x}%;top:${y}%;--d:${1.4+i*0.3}s;--dl:${i*0.2}s;`;
       flashStage.appendChild(s);
     });
+
+    // ── Mobile search ──
     function checkMobileSearch() {
-      document.getElementById('mobileSearch').style.display =
-        window.innerWidth <= 600 ? 'flex' : 'none';
+      document.getElementById('mobileSearch').style.display = window.innerWidth <= 600 ? 'flex' : 'none';
     }
     checkMobileSearch();
     window.addEventListener('resize', checkMobileSearch);
 
-    // ══════════════════════════════════════════════════════
-    // 💛 CUSTOMIZE YOUR 16 REASONS BELOW
-    // For photos: set  photo: "photos/01.jpg"
-    // Leave blank "" to show placeholder
-    // ══════════════════════════════════════════════════════
-    const reasons = [
-      { tag:"Your smile",    title:"Your smile lights up my world",       text:"The way your eyes crinkle when you laugh genuinely — it's my favorite thing to witness. Nothing else compares.", photo:"https://raw.githubusercontent.com/zinoesxvernice/16month/refs/heads/main/reason1.jpg" },
-      { tag:"Your kindness", title:"How kind you are to everyone",         text:"You treat every person you meet with such genuine warmth. I notice it every time and fall in love all over again.", photo:"https://raw.githubusercontent.com/zinoesxvernice/16month/refs/heads/main/2B6D470F-3AD3-4438-958F-36B54CFD7935.jpg" },
-      { tag:"Little habits", title:"Your silly little habits",             text:"The little things I never thought I'd adore — I adore them all. They're perfectly, unmistakably you.", photo:"" },
-      { tag:"Your laugh",    title:"The sound of your laugh",              text:"It's contagious. Even on my hardest days, hearing you laugh is an instant, irreplaceable remedy.", photo:"" },
-      { tag:"Your strength", title:"Your quiet resilience",                text:"The way you face challenges with grace and composure inspires me every day. You're stronger than you know.", photo:"" },
-      { tag:"Your heart",    title:"The size of your heart",               text:"The love you give to the people around you shows just how beautiful and endless your heart truly is.", photo:"" },
-      { tag:"Being us",      title:"How comfortable I am with you",        text:"Around you, I don't have to pretend or perform. I can just be myself. That is the rarest, most beautiful gift.", photo:"" },
-      { tag:"Your passion",  title:"Your passion for things you love",     text:"When you talk about the things you care about, your whole face changes. I could listen to you forever.", photo:"" },
-      { tag:"Small moments", title:"The small moments we share",           text:"Late nights, early mornings, quiet afternoons — ordinary moments become extraordinary just because you're there.", photo:"" },
-      { tag:"Your support",  title:"How you always believe in me",         text:"Even when I doubt myself, you never do. Your unwavering faith in me pushes me to become a better person.", photo:"" },
-      { tag:"Your eyes",     title:"The way you look at me",               text:"There's a certain look you give me that makes me feel like I'm the only person in the world. I never want to stop seeing it.", photo:"" },
-      { tag:"Your wit",      title:"Your humor and quick wit",             text:"You make everything more fun. You find joy in the smallest things, and it is completely infectious.", photo:"" },
-      { tag:"Growing",       title:"How we grow together",                 text:"We're not the same people we were at month one — and I love who we're becoming, together, side by side.", photo:"" },
-      { tag:"Safety",        title:"How safe I feel with you",             text:"There's nowhere in the world I feel more at peace than when I'm with you. You are my safe place.", photo:"" },
-      { tag:"The details",   title:"You remember the little things",       text:"My favorite snack. A random thing I mentioned weeks ago. You remember. It's such a small thing that means everything.", photo:"" },
-      { tag:"Simply you",    title:"Because you are simply you",           text:"If I had just one reason, it would be this. Everything you are — everything that makes you, you — is why I love you, completely.", photo:"" }
-    ];
-
-    // Render cards
-    const grid = document.getElementById('cardsGrid');
-    reasons.forEach((r, i) => {
-      const num = String(i+1).padStart(2,'0');
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.style.transitionDelay = `${(i%3)*0.08}s`;
-      const ph = r.photo
-        ? `<img src="${r.photo}" alt="${r.title}" loading="lazy">`
-        : `<div class="photo-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>add a photo</span></div>`;
-      card.innerHTML = `<div class="card-photo">${ph}<div class="card-number">${num}</div></div><div class="card-body"><span class="card-tag">${r.tag}</span><h3>${r.title}</h3><p>${r.text}</p></div>`;
-      grid.appendChild(card);
-    });
-
-    // Sidebar items
-    const sidebar = document.getElementById('sidebarItems');
-    const emojis = ['😊','🥰','😄','😂','💪','💕','🏠','✨','🌙','🌟','👀','😂','🌱','🛡️','💝','🫵'];
-    const grads = [['#f06292','#ba68c8'],['#80cbc4','#4dd0e1'],['#ffb74d','#ff8a65'],['#a5d6a7','#4db6ac'],['#90caf9','#7986cb'],['#f48fb1','#f8bbd0'],['#bcaaa4','#8d6e63'],['#ffe082','#ffca28'],['#ef9a9a','#e57373'],['#b39ddb','#9575cd'],['#80deea','#4fc3f7'],['#c8e6c9','#81c784'],['#ffcc80','#ffa726'],['#b0bec5','#78909c'],['#f48fb1','#e91e63'],['#f06292','#ad1457']];
-    reasons.forEach((r, i) => {
-      const [c1,c2] = grads[i];
-      const num = String(i+1).padStart(2,'0');
-      const el = document.createElement('div');
-      el.className = 'yt-rec-item';
-      el.onclick = scrollToReasons;
-      el.innerHTML = `<div class="yt-rec-thumb" style="background:linear-gradient(135deg,${c1},${c2})"><div class="yt-rec-thumb-emoji">${emojis[i]}</div><span class="yt-rec-duration">${num}</span></div><div class="yt-rec-info"><div class="yt-rec-title">Reason #${i+1}: ${r.title}</div><div class="yt-rec-channel">[Your Name]</div><div class="yt-rec-meta">${(i+1)*100}K views</div></div>`;
-      sidebar.appendChild(el);
-    });
-
+    // ── Scroll helpers ──
     function scrollToReasons() {
       document.getElementById('reasonsSection').scrollIntoView({ behavior: 'smooth' });
     }
-
-    // Progress bar
     window.addEventListener('scroll', () => {
       const prog = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
       document.getElementById('progressFill').style.width = prog + '%';
     });
 
-    // Scroll reveal
-    const obs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting) x.target.classList.add('visible'); }), { threshold: 0.08 });
+    // ── Scroll reveal cards ──
+    const obs = new IntersectionObserver(e => e.forEach(x => { if (x.isIntersecting) x.target.classList.add('visible'); }), { threshold: 0.08 });
     document.querySelectorAll('.card').forEach(c => obs.observe(c));
 
-    // Background petals
+    // ── Background petals ──
     const petalContainer = document.getElementById('petals');
     const pColors = ['#F8BBD0','#F48FB1','#F3E5F5','#FCE4EC','#EDE7F6','#FFCDD2'];
     function mkPetal() {
       const p = document.createElement('div'); p.className = 'petal';
-      const s=Math.random()*10+6, l=Math.random()*100, d=Math.random()*9+7, dl=Math.random()*5;
-      const c=pColors[Math.floor(Math.random()*pColors.length)];
-      p.style.cssText=`width:${s}px;height:${s*1.4}px;left:${l}vw;background:${c};animation-duration:${d}s;animation-delay:${dl}s;border-radius:${Math.random()>.5?'0 100% 0 100%':'100% 0 100% 0'};`;
+      const s = Math.random()*10+6, l = Math.random()*100, d = Math.random()*9+7, dl = Math.random()*5;
+      const c = pColors[Math.floor(Math.random()*pColors.length)];
+      p.style.cssText = `width:${s}px;height:${s*1.4}px;left:${l}vw;background:${c};animation-duration:${d}s;animation-delay:${dl}s;border-radius:${Math.random()>.5?'0 100% 0 100%':'100% 0 100% 0'};`;
       petalContainer.appendChild(p);
-      setTimeout(()=>p.remove(),(d+dl)*1000);
+      setTimeout(() => p.remove(), (d+dl)*1000);
     }
-    for(let i=0;i<15;i++) mkPetal();
+    for (let i = 0; i < 15; i++) mkPetal();
     setInterval(mkPetal, 800);
 
-    // Video thumbnail petals
+    // ── Video thumbnail petals ──
     const ytPetalsEl = document.getElementById('ytPetals');
     const ytpc = ['#f8bbd0','#f48fb1','#f3e5f5','#fce4ec'];
     function mkYtPetal() {
       const p = document.createElement('div'); p.className = 'yt-petal';
-      const s=Math.random()*8+4, l=Math.random()*100, d=Math.random()*5+4, dl=Math.random()*3;
-      const c=ytpc[Math.floor(Math.random()*ytpc.length)];
-      p.style.cssText=`width:${s}px;height:${s*1.4}px;left:${l}%;background:${c};animation-duration:${d}s;animation-delay:${dl}s;border-radius:0 100% 0 100%;`;
+      const s = Math.random()*8+4, l = Math.random()*100, d = Math.random()*5+4, dl = Math.random()*3;
+      const c = ytpc[Math.floor(Math.random()*ytpc.length)];
+      p.style.cssText = `width:${s}px;height:${s*1.4}px;left:${l}%;background:${c};animation-duration:${d}s;animation-delay:${dl}s;border-radius:0 100% 0 100%;`;
       ytPetalsEl.appendChild(p);
-      setTimeout(()=>p.remove(),(d+dl)*1000);
+      setTimeout(() => p.remove(), (d+dl)*1000);
     }
-    for(let i=0;i<8;i++) mkYtPetal();
+    for (let i = 0; i < 8; i++) mkYtPetal();
     setInterval(mkYtPetal, 700);
   </script>
 </body>
