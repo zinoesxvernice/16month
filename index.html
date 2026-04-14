@@ -10,7 +10,6 @@
     body { background: #0f0f0f; color: #f1f1f1; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
     button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; }
 
-
     /* ── AUDIO PLAYER ── */
     .audio-player {
       position: fixed; bottom: 24px; right: 24px; z-index: 9999;
@@ -35,15 +34,10 @@
     @keyframes apwave { from { height: 4px; } to { height: var(--h); } }
     .ap-waves.paused .ap-bar { animation-play-state: paused; }
     .ap-vol { font-size: 0.9rem; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; flex-shrink: 0; line-height: 1; }
-    .ap-vol:hover { opacity: 1; }   
-    
+    .ap-vol:hover { opacity: 1; }
+
     /* ── NAVBAR ── */
-    .yt-nav {
-      position: sticky; top: 0; z-index: 100;
-      background: #0f0f0f; height: 56px;
-      display: flex; align-items: center; padding: 0 16px; gap: 8px;
-      border-bottom: 1px solid #272727;
-    }
+    .yt-nav { position: sticky; top: 0; z-index: 100; background: #0f0f0f; height: 56px; display: flex; align-items: center; padding: 0 16px; gap: 8px; border-bottom: 1px solid #272727; }
     .yt-nav-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
     .yt-hamburger { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 18px; transition: background .15s; }
     .yt-hamburger:hover { background: #272727; }
@@ -220,13 +214,13 @@
       .cards-grid { grid-template-columns: 1fr; padding: 24px 12px 60px; gap: 14px; } .card-photo { height: 180px; }
       .section-header { padding: 40px 12px 12px; } .section-header h2 { font-size: clamp(1.5rem, 6vw, 2rem); }
       .footer { padding: 50px 16px; } .transition-block { height: 80px; } .yt-section { padding-bottom: 32px; }
-      /* Modal slides up from bottom on mobile */
       .card-modal-overlay { padding: 0; align-items: flex-end; }
       .card-modal { max-height: 85vh; border-radius: 24px 24px 0 0; transform: translateY(60px); }
       .card-modal-overlay.open .card-modal { transform: translateY(0); }
       .card-modal-photo { height: 200px; border-radius: 24px 24px 0 0; }
       .card-modal-body { padding: 20px 20px 40px; }
       .card-modal-title { font-size: 1.45rem; }
+      .audio-player { bottom: 16px; right: 16px; min-width: 0; padding: 8px 14px 8px 10px; gap: 8px; }
     }
     @media (max-width: 380px) { .yt-logo-text { font-size: 0.95rem; } .yt-video-title { font-size: 0.88rem; } .yt-action-btn { font-size: 0.72rem; padding: 5px 8px; } }
   </style>
@@ -235,7 +229,6 @@
 
   <div id="petals"></div>
 
-  <!-- Scroll indicator -->
   <div class="scroll-indicator" id="scrollIndicator">
     <span class="scroll-label">scroll</span>
     <div class="scroll-arrow">
@@ -243,7 +236,6 @@
     </div>
   </div>
 
-  <!-- Card modal -->
   <div class="card-modal-overlay" id="cardModalOverlay">
     <div class="card-modal" id="cardModal">
       <button class="card-modal-close" id="cardModalClose">✕</button>
@@ -330,9 +322,7 @@
           Hi Vernice 🌸 I made this for you.<br><br>
           HAPPY 16 months MY BABYY!! (maybe 13.5 in reality but anyways) with you has been the best thing that's ever happened to me.
           I'm not always great at being a friend, or whatever you see me as right now, but I hope there will still be many more months to come, because I do not plan on leaving my baby. theres many reasons why i love you, but for our 16th month, i will provide 16 reasons<br><br>
-          I hope you know I will always be here for you vernice, I love you. ♡
-
-          Scroll down for more.
+          I hope you know I will always be here for you vernice, I love you. ♡ Scroll down for more.
         </div>
         <div class="yt-hashtags">#ForYou &nbsp; #16Months &nbsp; #ILOVEVERNICE</div>
       </div>
@@ -374,18 +364,39 @@
     </footer>
   </div>
 
+  <!-- ── AUDIO — must live BEFORE the <script> ── -->
+  <audio id="bgAudio" loop>
+    <source src="Miraidempa - Unslept.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="audio-player" id="audioPlayer">
+    <button class="ap-play paused" id="apPlayBtn" onclick="toggleAudio()">
+      <svg id="apPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <div class="ap-info">
+      <div class="ap-title">made for vernice 🌸</div>
+      <div class="ap-sub" id="apSub">click ▶ to play</div>
+    </div>
+    <div class="ap-waves paused" id="apWaves">
+      <div class="ap-bar" style="--s:0.6s;--h:18px"></div>
+      <div class="ap-bar" style="--s:0.9s;--h:14px"></div>
+      <div class="ap-bar" style="--s:0.7s;--h:20px"></div>
+      <div class="ap-bar" style="--s:1.1s;--h:11px"></div>
+      <div class="ap-bar" style="--s:0.8s;--h:16px"></div>
+    </div>
+    <span class="ap-vol" id="apVol" onclick="toggleMute()">🔊</span>
+  </div>
+
   <script>
-
-
     // ── Audio player ──
-    const audio = document.getElementById('bgAudio');
-    const playBtn = document.getElementById('apPlayBtn');
+    const audio    = document.getElementById('bgAudio');
+    const playBtn  = document.getElementById('apPlayBtn');
     const playIcon = document.getElementById('apPlayIcon');
-    const waves = document.getElementById('apWaves');
-    const apSub = document.getElementById('apSub');
-    const apVol = document.getElementById('apVol');
-    let playing = false;
-    
+    const waves    = document.getElementById('apWaves');
+    const apSub    = document.getElementById('apSub');
+    const apVol    = document.getElementById('apVol');
+    let playing    = false;
+
     function toggleAudio() {
       if (!playing) {
         audio.play();
@@ -403,11 +414,12 @@
         apSub.textContent = 'paused';
       }
     }
-    
+
     function toggleMute() {
       audio.muted = !audio.muted;
       apVol.textContent = audio.muted ? '🔇' : '🔊';
     }
+
     // ══════════════════════════════════════════════════════
     // 💛 YOUR 16 REASONS
     // ══════════════════════════════════════════════════════
@@ -450,12 +462,10 @@
       modalTag.textContent   = r.tag;
       modalTitle.textContent = r.title;
       modalText.textContent  = r.text;
-
       const oldImg = modalPhoto.querySelector('img');
       const oldPh  = modalPhoto.querySelector('.photo-placeholder');
       if (oldImg) oldImg.remove();
       if (oldPh)  oldPh.remove();
-
       if (r.photo) {
         const img = document.createElement('img');
         img.src = r.photo; img.alt = r.title;
@@ -466,7 +476,6 @@
         ph.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`;
         modalPhoto.insertBefore(ph, modalNum);
       }
-
       document.getElementById('cardModal').scrollTop = 0;
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -489,18 +498,12 @@
       card.className = 'card';
       card.style.transitionDelay = `${(i % 3) * 0.08}s`;
       card.addEventListener('click', () => openModal(r, i));
-
       const cardPhotoHTML = r.photo
         ? `<img src="${r.photo}" alt="${r.title}" loading="lazy">`
         : `<div class="photo-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>add a photo</span></div>`;
-
       card.innerHTML = `
         <div class="card-photo">${cardPhotoHTML}<div class="card-number">${num}</div></div>
-        <div class="card-body">
-          <span class="card-tag">${r.tag}</span>
-          <h3>${r.title}</h3>
-          <p>${r.text}</p>
-        </div>`;
+        <div class="card-body"><span class="card-tag">${r.tag}</span><h3>${r.title}</h3><p>${r.text}</p></div>`;
       grid.appendChild(card);
     });
 
@@ -512,10 +515,8 @@
       const el  = document.createElement('div');
       el.className = 'yt-rec-item';
       el.onclick = scrollToReasons;
-
       const thumbInner = r.photo ? `<img src="${r.photo}" alt="${r.title}" loading="lazy">` : `<div class="yt-rec-thumb-emoji">${r.emoji}</div>`;
       const thumbStyle = r.photo ? `` : `style="background:linear-gradient(135deg,${c1},${c2})"`;
-
       el.innerHTML = `
         <div class="yt-rec-thumb" ${thumbStyle}>${thumbInner}<span class="yt-rec-duration">${num}</span></div>
         <div class="yt-rec-info">
@@ -548,7 +549,7 @@
     function checkMobileSearch() { document.getElementById('mobileSearch').style.display = window.innerWidth <= 600 ? 'flex' : 'none'; }
     checkMobileSearch(); window.addEventListener('resize', checkMobileSearch);
 
-    // ── Scroll: indicator + progress bar ──
+    // ── Scroll ──
     const scrollIndicator = document.getElementById('scrollIndicator');
     function scrollToReasons() { document.getElementById('reasonsSection').scrollIntoView({ behavior: 'smooth' }); }
     window.addEventListener('scroll', () => {
@@ -583,63 +584,6 @@
       ytPetalsEl.appendChild(p); setTimeout(() => p.remove(), (d+dl)*1000);
     }
     for (let i = 0; i < 8; i++) mkYtPetal(); setInterval(mkYtPetal, 700);
-  </script>
- <audio id="bgAudio" loop>
-    <source src="Miraidempa - Unslept.mp3" type="audio/mpeg">
-  </audio>
-
-  <div class="audio-player" id="audioPlayer">
-    <button class="ap-play paused" id="apPlayBtn" onclick="toggleAudio()">
-      <svg id="apPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-    </button>
-    <div class="ap-info">
-      <div class="ap-title">made for vernice 🌸</div>
-      <div class="ap-sub" id="apSub">click ▶ to play</div>
-    </div>
-    <div class="ap-waves paused" id="apWaves">
-      <div class="ap-bar" style="--s:0.6s;--h:18px"></div>
-      <div class="ap-bar" style="--s:0.9s;--h:14px"></div>
-      <div class="ap-bar" style="--s:0.7s;--h:20px"></div>
-      <div class="ap-bar" style="--s:1.1s;--h:11px"></div>
-      <div class="ap-bar" style="--s:0.8s;--h:16px"></div>
-    </div>
-    <span class="ap-vol" id="apVol" onclick="toggleMute()">🔊</span>
-  </div>
-
-  <script>
-    // ── Audio player ──
-    const audio = document.getElementById('bgAudio');
-    const playBtn = document.getElementById('apPlayBtn');
-    const playIcon = document.getElementById('apPlayIcon');
-    const waves = document.getElementById('apWaves');
-    const apSub = document.getElementById('apSub');
-    const apVol = document.getElementById('apVol');
-    let playing = false;
-
-    function toggleAudio() {
-      if (!playing) {
-        audio.play();
-        playing = true;
-        playIcon.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
-        playBtn.classList.remove('paused');
-        waves.classList.remove('paused');
-        apSub.textContent = 'now playing ♡';
-      } else {
-        audio.pause();
-        playing = false;
-        playIcon.setAttribute('d', 'M8 5v14l11-7z');
-        playBtn.classList.add('paused');
-        waves.classList.add('paused');
-        apSub.textContent = 'paused';
-      }
-    }
-
-    function toggleMute() {
-      audio.muted = !audio.muted;
-      apVol.textContent = audio.muted ? '🔇' : '🔊';
-    }
-
-    // ── (rest of your existing JS stays here unchanged) ──
   </script>
 </body>
 </html>
