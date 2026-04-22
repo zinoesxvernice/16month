@@ -790,6 +790,9 @@ function closeModal(){
   modal.classList.remove('open');
   document.getElementById('floatingStar').classList.remove('visible');
 }
+  modalClose.addEventListener('click', closeModal);
+modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      AUDIO PLAYER
