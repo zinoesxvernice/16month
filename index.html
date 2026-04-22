@@ -320,7 +320,7 @@
 <!-- ── HERO ── -->
 <div id="hero">
   <div class="glass-card">
-    <span class="emoji-glow">💫</span>
+    <span class="emoji-glow"></span>
     <p class="eyebrow">TO MY BABY VERNICEEEEE</p>
     <h1 class="main-title">HAPPY 16TH<br>MONTHSARY BABYYY</h1>
     <p class="tagline">i hope you know baby, every second, every minute, every hour, every day, every week, every month, and every year with you is super super special to me my BABYY</p>
@@ -576,16 +576,17 @@
   }
 
   function endWorm(){
-    flash.style.transition='opacity 0s'; flash.style.opacity='1';
-    wCtx.clearRect(0,0,WC.width,WC.height); WC.classList.remove('active');
-    setTimeout(()=>{
-      flash.style.transition='opacity 1s ease'; flash.style.opacity='0';
-      showSolar();
-      document.getElementById('player').classList.add('visible');
-      document.getElementById('song').play().catch(()=>{});
-      wormRunning=false;
-    },80);
-  }
+  flash.style.transition='opacity 0s'; flash.style.opacity='1';
+  wCtx.clearRect(0,0,WC.width,WC.height); WC.classList.remove('active');
+  setTimeout(()=>{
+    flash.style.transition='opacity 1s ease'; flash.style.opacity='0';
+    showSolar();
+    document.getElementById('player').classList.add('visible');
+    connectAudio(); // ← add this BEFORE play
+    document.getElementById('song').play().catch(()=>{});
+    wormRunning=false;
+  },80);
+}
 
   function startWorm(){
     if(wormRunning) return;
@@ -600,27 +601,59 @@
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      AUDIO RING (visualizer bars around photo)
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  function buildAudioRing(){
-    const ring = document.getElementById('audioRing');
-    ring.innerHTML = '';
-    // The ring div is 200x200 centered over the 100x100 star.
-    // Each bar pivots from the ring center (100px,100px).
-    // We translate the bar UP by the star's radius (50px) + a small gap (6px) = 56px
-    // so the bar starts right at the edge of the photo.
-    const PIVOT = 56; // px from center to bar base
-    for(let i = 0; i < BAR_COUNT; i++){
-      const bar = document.createElement('div');
-      bar.className = 'bar';
-      const angleDeg = (360 / BAR_COUNT) * i;
-      // rotate around ring center, then translate bar UP so it sits outside the photo
-      bar.style.cssText = `
-        transform: rotate(${angleDeg}deg) translateY(-${PIVOT}px);
-        animation-delay: ${((i / BAR_COUNT) * 1).toFixed(3)}s;
-        animation-duration: ${(0.55 + Math.random() * 0.9).toFixed(3)}s;
-      `;
-      ring.appendChild(bar);
-    }
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   AUDIO RING (real visualizer)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+let analyser, dataArray, barEls = [];
+
+function buildAudioRing(){
+  const ring = document.getElementById('audioRing');
+  ring.innerHTML = '';
+  barEls = [];
+  const PIVOT = 56;
+  for(let i = 0; i < BAR_COUNT; i++){
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    const angleDeg = (360 / BAR_COUNT) * i;
+    bar.style.cssText = `
+      transform: rotate(${angleDeg}deg) translateY(-${PIVOT}px);
+      animation: none;
+      height: 6px;
+      opacity: 0.35;
+    `;
+    ring.appendChild(bar);
+    barEls.push(bar);
   }
+}
+
+function connectAudio(){
+  if(analyser) return; // already connected
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = ctx.createMediaElementSource(song);
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 64; // 32 usable bins — matches BAR_COUNT
+    analyser.smoothingTimeConstant = 0.82;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    source.connect(analyser);
+    analyser.connect(ctx.destination);
+  } catch(e) {
+    console.warn('Web Audio API not supported', e);
+  }
+}
+
+function tickVisualizer(){
+  if(!analyser){ requestAnimationFrame(tickVisualizer); return; }
+  analyser.getByteFrequencyData(dataArray);
+  for(let i = 0; i < BAR_COUNT; i++){
+    const value = dataArray[i] / 255; // 0–1
+    const height = 6 + value * 28;   // 6px min, 34px max
+    const opacity = 0.25 + value * 0.75;
+    barEls[i].style.height  = height + 'px';
+    barEls[i].style.opacity = opacity;
+  }
+  requestAnimationFrame(tickVisualizer);
+}
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      SOLAR SYSTEM
@@ -666,13 +699,14 @@
     requestAnimationFrame(animateSolar);
   }
 
-  function showSolar(){
-    buildSolar();
-    buildAudioRing();
-    solarWrap.classList.add('visible');
-    requestAnimationFrame(animateSolar);
-    setTimeout(() => { dragHint.style.opacity='0'; }, 4000);
-  }
+ function showSolar(){
+  buildSolar();
+  buildAudioRing();
+  solarWrap.classList.add('visible');
+  requestAnimationFrame(animateSolar);
+  requestAnimationFrame(tickVisualizer); // ← add this
+  setTimeout(() => { dragHint.style.opacity='0'; }, 4000);
+}
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      DRAG HANDLING
@@ -731,11 +765,12 @@
   const progressFill = document.getElementById('progressFill');
   let isPlaying      = false;
 
-  playBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    isPlaying ? (song.pause(), playBtn.textContent='▶') : (song.play(), playBtn.textContent='⏸');
-    isPlaying = !isPlaying;
-  });
+playBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  connectAudio(); // ← add this
+  isPlaying ? (song.pause(), playBtn.textContent='▶') : (song.play(), playBtn.textContent='⏸');
+  isPlaying = !isPlaying;
+});
   song.addEventListener('play',  ()=>{ isPlaying=true;  playBtn.textContent='⏸'; });
   song.addEventListener('pause', ()=>{ isPlaying=false; playBtn.textContent='▶'; });
   song.addEventListener('timeupdate', ()=>{
