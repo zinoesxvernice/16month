@@ -23,6 +23,35 @@
     /* ══ STAR CANVAS ══ */
     #starCanvas { position:fixed; inset:0; z-index:0; }
 
+    /* ══ FLOATING STAR (shown when modal opens) ══ */
+#floatingStar {
+  position:fixed;
+  top:50%;
+  left:16px;
+  transform:translateY(-50%) scale(0.6);
+  width:80px; height:80px;
+  border-radius:50%;
+  overflow:hidden;
+  z-index:35;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .4s ease, transform .4s cubic-bezier(.22,1,.36,1);
+  box-shadow:0 0 20px rgba(255,180,80,.4),0 0 50px rgba(255,120,60,.15);
+}
+#floatingStar img {
+  width:100%; height:100%;
+  object-fit:cover; display:block;
+}
+#floatingStar.visible {
+  opacity:1;
+  transform:translateY(-50%) scale(1);
+}
+/* smaller on tiny phones */
+@media(max-width:380px){
+  #floatingStar { width:60px; height:60px; left:10px; }
+}
+
+    
     /* ══ HERO ══ */
     #hero {
       position:fixed; inset:0; z-index:2;
@@ -337,6 +366,10 @@
     <div class="day-badge"><span id="dayCount">...</span> days together</div>
     <p class="click-hint">tap to continue</p>
   </div>
+</div>
+
+  <div id="floatingStar">
+  <img src="IMG_9354.png" alt="us">
 </div>
 
 <!-- ── WORMHOLE ── -->
@@ -746,16 +779,17 @@ function tickVisualizer(){
   const modalClose = document.getElementById('modalClose');
 
   function openModal(p){
-    document.getElementById('mIcon').textContent  = p.emoji;
-    document.getElementById('mTitle').textContent = p.title;
-    document.getElementById('mBody').innerHTML    = p.body;
-    modal.classList.add('open');
-  }
-  function closeModal(){ modal.classList.remove('open'); }
+  document.getElementById('mIcon').textContent  = p.emoji;
+  document.getElementById('mTitle').textContent = p.title;
+  document.getElementById('mBody').innerHTML    = p.body;
+  modal.classList.add('open');
+  document.getElementById('floatingStar').classList.add('visible');
+}
 
-  modalClose.addEventListener('click', closeModal);
-  modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
-  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+function closeModal(){
+  modal.classList.remove('open');
+  document.getElementById('floatingStar').classList.remove('visible');
+}
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      AUDIO PLAYER
