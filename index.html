@@ -127,12 +127,12 @@
       transform-origin:center center;
     }
 
-    /* Central star */
-        #centralStar {
+    /* ══ CENTRAL STAR ══ */
+    #centralStar {
       position:absolute;
       left:1500px; top:1500px;
       transform:translate(-50%,-50%);
-      width:72px; height:72px;
+      width:100px; height:100px;
       border-radius:50%;
       overflow:hidden;
       box-shadow:0 0 30px rgba(255,180,80,.35),0 0 80px rgba(255,120,60,.15);
@@ -140,9 +140,42 @@
       pointer-events:none;
       z-index:2;
     }
+    #centralStar img {
+      width:100%; height:100%;
+      object-fit:cover;
+      display:block;
+      border-radius:50%;
+    }
     @keyframes starPulse {
       0%,100%{box-shadow:0 0 30px rgba(255,180,80,.35),0 0 80px rgba(255,120,60,.15)}
       50%    {box-shadow:0 0 50px rgba(255,200,100,.55),0 0 120px rgba(255,140,80,.25)}
+    }
+
+    /* ══ AUDIO RING ══ */
+    #audioRing {
+      position:absolute;
+      /* center it over the star — ring is 200x200, star is 100x100 */
+      left:50%; top:50%;
+      width:200px; height:200px;
+      transform:translate(-50%,-50%);
+      border-radius:50%;
+      pointer-events:none;
+      overflow:visible;
+    }
+    .bar {
+      position:absolute;
+      width:3px;
+      border-radius:10px;
+      background:linear-gradient(to top,#a855f7,#60a5fa);
+      /* pivot from center of the ring (100px,100px) */
+      left:calc(50% - 1.5px);
+      top:50%;
+      transform-origin:50% 0%;
+      animation:barPulse 1s ease-in-out infinite;
+    }
+    @keyframes barPulse {
+      0%,100%{ height:6px;  opacity:.35; }
+      50%    { height:20px; opacity:1;   }
     }
 
     /* Planet wrapper (positioned by JS) */
@@ -287,19 +320,19 @@
 <!-- ── HERO ── -->
 <div id="hero">
   <div class="glass-card">
-    <span class="emoji-glow"></span>
+    <span class="emoji-glow">💫</span>
     <p class="eyebrow">TO MY BABY VERNICEEEEE</p>
     <h1 class="main-title">HAPPY 16TH<br>MONTHSARY BABYYY</h1>
     <p class="tagline">i hope you know baby, every second, every minute, every hour, every day, every week, every month, and every year with you is super super special to me my BABYY</p>
     <div class="divider">
       <div class="divider-line"></div>
-      <span style="font-size:.85rem">warning: lower your volume baby</span>
+      <span style="font-size:.85rem">⚠️ lower your volume baby</span>
       <div class="divider-line"></div>
     </div>
     <p class="message">
-      16 months of <strong>happiness with you my baby,</strong>, staying up with you,
+      16 months of <strong>happiness with you my baby</strong>, staying up with you,
       and loving every bit of you my sweet girl. you truly are my home,
-      my princess, my <strong>everything, i love you soosososososoososo MUCHHH MY VERNICE MWAMWAMWWAMWAMWWMAMWAMWA</strong>.
+      my princess, my <strong>everything — i love you soosososososoososo MUCHHH MY VERNICE MWAMWAMWWAMWAMWWMAMWAMWA</strong>.
     </p>
     <div class="day-badge"><span id="dayCount">...</span> days together</div>
     <p class="click-hint">tap to continue</p>
@@ -313,11 +346,16 @@
 <!-- ── SOLAR SYSTEM ── -->
 <div id="solarWrap">
   <div id="universe">
-      <div id="centralStar">
-    <img src="IMG_9354.png" style="width:100%; height:100%; object-fit:cover; display:block;">
-  </div>
-  <div id="dragHint">drag to explore </div>
-</div>
+
+    <!-- Central star: your photo as a globe with audio ring -->
+    <div id="centralStar">
+      <img src="IMG_9354.png" alt="us">
+      <div id="audioRing"></div>
+    </div>
+
+  </div><!-- /universe -->
+  <div id="dragHint">✦ drag to explore ✦</div>
+</div><!-- /solarWrap -->
 
 <!-- ── AUDIO PLAYER ── -->
 <div id="player">
@@ -336,24 +374,19 @@
   </div>
 </div>
 
-<!--
-  ✏️  Add your audio file:
-  1. Rename it to  song.mp3
-  2. Place it in the same folder as index.html
-  3. Push both to GitHub
--->
-<audio id="song" src="Miraidempa - Unslept.mp3" preload="auto"></audio>
+<audio id="song" src="Miraidempa - Unslept.mp3" preload="auto" loop></audio>
 
 <script>
 (() => {
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-     CONFIG  — edit these
+     CONFIG
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  const START_DATE    = new Date('2024-12-30'); // ← your anniversary start date
+  const START_DATE    = new Date('2024-12-30');
   const WORM_DURATION = 5000;
+  const BAR_COUNT     = 32;
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-     PLANET DATA  — edit content here
+     PLANET DATA
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
   const PLANETS = [
     {
@@ -361,15 +394,12 @@
       radius: 145, period: 13000, startAngle: 0.5, tiltY: 0.38,
       glow: 'rgba(249,168,212,.55)',
       title: 'a letter to my dear vernice,',
-      /* ✏️ Edit the letter below */
       body: `
         <p>HAIAIAIAIAIAIAIAIAIAI BABYY,</p>
-        <p>i started working on this near the middle of april, so if you are reading this, I AM SUPER SUPER GLAD WE MADE IT TO MAY MY BABYY!!, </p>
-        <p>i know how much you dread this month my love, because this would be the month everything would start going downhill, and i don't blame you, i dread it too, i was a horrible person, i was unstable, i was being ignorant, i was being immature, and i was being a really pathetic liar to you, and im really sorry, i am really really really really really sorry for lying to you about my name vernice, im really sorry for lying about my age vernice, im really sorry for lying about my face my identity, im really really really sorry for being insecure and lying to you vernice, i am really really sorry for treating you horribly vernice, i am really really sorry for being treating you bad and cheating on you vernice, i am really really really sorry for always cussing at you and having a really bad temper and having anger issues vernice, im really really really sorry for how angry i always got when things didn't go my way and everytime we argued, i am really really sorry for all the hurtful words i said to you, i am really sorry for telling you things like telling you to shut up and calling you names like bitch and really ignorant words like that, im really really sorry vernice 
-        You make the ordinary feel extraordinary, and you make hard days softer
-        just by being there.</p>
-        <p>Thank you for choosing me, every single day.
-        Happy 16 months — here's to every one that follows. 💕</p>
+        <p>i started working on this near the middle of april, so if you are reading this, I AM SUPER SUPER GLAD WE MADE IT TO MAY MY BABYY!!</p>
+        <p>i know how much you dread this month my love, because this would be the month everything would start going downhill, and i don't blame you, i dread it too. i was a horrible person, i was unstable, i was being ignorant, i was being immature, and i was being a really pathetic liar to you. im really really really sorry for lying to you about my name vernice, im really sorry for lying about my age, im really sorry for lying about my face and my identity, im really really sorry for being insecure and lying to you vernice. i am really really sorry for treating you horribly, for cheating on you vernice, for always cussing at you and having a really bad temper, for how angry i always got when things didn't go my way, for all the hurtful words i said to you, for telling you to shut up and calling you names. im really really sorry vernice.</p>
+        <p>You make the ordinary feel extraordinary, and you make hard days softer just by being there.</p>
+        <p>Thank you for choosing me, every single day. Happy 16 months — here's to every one that follows. 💕</p>
       `
     },
     {
@@ -377,15 +407,13 @@
       radius: 230, period: 20000, startAngle: 2.2, tiltY: 0.35,
       glow: 'rgba(167,139,250,.55)',
       title: 'Our Song',
-      /* ✏️ Edit the song name/meaning */
       body: `
         <p>This song reminds me of <strong>us</strong> — the late nights,
         the quiet moments, every time it came on and I thought of you.</p>
         <p>Whenever you hear it, know that I'm thinking of you. 🎶</p>
         <div style="margin-top:20px; text-align:center;">
-          <button onclick="document.getElementById('song').paused
-            ? (document.getElementById('song').play(), this.textContent='⏸  pause')
-            : (document.getElementById('song').pause(), this.textContent='▶  play')"
+          <button onclick="const s=document.getElementById('song');
+            s.paused?(s.play(),this.textContent='⏸  pause'):(s.pause(),this.textContent='▶  play')"
             style="padding:10px 28px; border-radius:100px; border:1px solid rgba(167,139,250,.5);
             background:rgba(167,139,250,.15); color:#c4b5fd; font-family:inherit;
             font-size:.9rem; cursor:pointer; letter-spacing:.05em;">
@@ -399,7 +427,6 @@
       radius: 315, period: 30000, startAngle: 3.9, tiltY: 0.32,
       glow: 'rgba(134,239,172,.5)',
       title: 'Why I Love You',
-      /* ✏️ Add your own reasons */
       body: `
         <ul class="modal-list">
           <li>The way you laugh at your own jokes before the punchline</li>
@@ -416,7 +443,6 @@
       radius: 400, period: 40000, startAngle: 1.3, tiltY: 0.28,
       glow: 'rgba(253,211,77,.45)',
       title: 'Our Memories',
-      /* ✏️ Add photos or memories here */
       body: `
         <p>Every moment with you is one I want to keep forever.</p>
         <p>More photos and memories coming here soon — our story,
@@ -442,30 +468,30 @@
   function resizeSC() { SC.width=innerWidth; SC.height=innerHeight; buildStars(); }
 
   function buildStars() {
-    stars=[];
-    const n = Math.floor(SC.width*SC.height/3800);
-    for(let i=0;i<n;i++) stars.push({
-      x:Math.random()*SC.width, y:Math.random()*SC.height,
-      r:Math.random()*1.4+.2, base:Math.random()*.5+.15,
-      spd:Math.random()*.004+.001, phase:Math.random()*Math.PI*2,
-      blue:Math.random()>.82
+    stars = [];
+    const n = Math.floor(SC.width * SC.height / 3800);
+    for (let i = 0; i < n; i++) stars.push({
+      x: Math.random()*SC.width, y: Math.random()*SC.height,
+      r: Math.random()*1.4+.2, base: Math.random()*.5+.15,
+      spd: Math.random()*.004+.001, phase: Math.random()*Math.PI*2,
+      blue: Math.random() > .82
     });
   }
 
   function drawStars(t) {
     sCtx.clearRect(0,0,SC.width,SC.height);
-    const bg=sCtx.createRadialGradient(SC.width*.5,SC.height*.4,0,SC.width*.5,SC.height*.5,SC.width*.9);
+    const bg = sCtx.createRadialGradient(SC.width*.5,SC.height*.4,0,SC.width*.5,SC.height*.5,SC.width*.9);
     bg.addColorStop(0,'#08001a'); bg.addColorStop(.5,'#03000e'); bg.addColorStop(1,'#000003');
-    sCtx.fillStyle=bg; sCtx.fillRect(0,0,SC.width,SC.height);
-    [[.2,.3,'80,20,130',.13],[.78,.68,'20,40,100',.1]].forEach(([nx,ny,c,o])=>{
-      const g=sCtx.createRadialGradient(SC.width*nx,SC.height*ny,0,SC.width*nx,SC.height*ny,SC.width*.32);
+    sCtx.fillStyle = bg; sCtx.fillRect(0,0,SC.width,SC.height);
+    [[.2,.3,'80,20,130',.13],[.78,.68,'20,40,100',.1]].forEach(([nx,ny,c,o]) => {
+      const g = sCtx.createRadialGradient(SC.width*nx,SC.height*ny,0,SC.width*nx,SC.height*ny,SC.width*.32);
       g.addColorStop(0,`rgba(${c},${o})`); g.addColorStop(1,'transparent');
-      sCtx.fillStyle=g; sCtx.fillRect(0,0,SC.width,SC.height);
+      sCtx.fillStyle = g; sCtx.fillRect(0,0,SC.width,SC.height);
     });
-    for(const s of stars){
-      const a=s.base+.28*Math.sin(t*s.spd+s.phase);
+    for (const s of stars) {
+      const a = s.base + .28*Math.sin(t*s.spd+s.phase);
       sCtx.beginPath(); sCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
-      sCtx.fillStyle=s.blue?`rgba(180,200,255,${a})`:`rgba(255,255,255,${a})`;
+      sCtx.fillStyle = s.blue ? `rgba(180,200,255,${a})` : `rgba(255,255,255,${a})`;
       sCtx.fill();
     }
   }
@@ -473,18 +499,18 @@
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      WORMHOLE
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  const WC=document.getElementById('wormCanvas');
-  const wCtx=WC.getContext('2d');
-  const flash=document.getElementById('flash');
-  const hero=document.getElementById('hero');
+  const WC    = document.getElementById('wormCanvas');
+  const wCtx  = WC.getContext('2d');
+  const flash = document.getElementById('flash');
+  const hero  = document.getElementById('hero');
   let wormRunning=false, wormStart=null, wParticles=[];
 
-  function resizeWC(){ WC.width=innerWidth; WC.height=innerHeight; }
+  function resizeWC() { WC.width=innerWidth; WC.height=innerHeight; }
 
   class WP {
-    constructor(rand){this.reset(rand);}
+    constructor(rand){ this.reset(rand); }
     reset(rand){
-      const cx=WC.width/2,cy=WC.height/2;
+      const cx=WC.width/2, cy=WC.height/2;
       this.cx=cx; this.cy=cy;
       this.angle=Math.random()*Math.PI*2;
       this.dist=rand?Math.random()*Math.hypot(cx,cy):Math.random()*35;
@@ -572,60 +598,80 @@
   }
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     AUDIO RING (visualizer bars around photo)
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  function buildAudioRing(){
+    const ring = document.getElementById('audioRing');
+    ring.innerHTML = '';
+    // The ring div is 200x200 centered over the 100x100 star.
+    // Each bar pivots from the ring center (100px,100px).
+    // We translate the bar UP by the star's radius (50px) + a small gap (6px) = 56px
+    // so the bar starts right at the edge of the photo.
+    const PIVOT = 56; // px from center to bar base
+    for(let i = 0; i < BAR_COUNT; i++){
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      const angleDeg = (360 / BAR_COUNT) * i;
+      // rotate around ring center, then translate bar UP so it sits outside the photo
+      bar.style.cssText = `
+        transform: rotate(${angleDeg}deg) translateY(-${PIVOT}px);
+        animation-delay: ${((i / BAR_COUNT) * 1).toFixed(3)}s;
+        animation-duration: ${(0.55 + Math.random() * 0.9).toFixed(3)}s;
+      `;
+      ring.appendChild(bar);
+    }
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      SOLAR SYSTEM
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
   const solarWrap = document.getElementById('solarWrap');
   const universe  = document.getElementById('universe');
   const dragHint  = document.getElementById('dragHint');
   let planetEls   = [];
-  let solarRAF    = null;
 
   function buildSolar(){
     // Orbit rings
-    PLANETS.forEach(p=>{
-      const ring=document.createElement('div');
-      ring.className='orbit-ring';
+    PLANETS.forEach(p => {
+      const ring = document.createElement('div');
+      ring.className = 'orbit-ring';
       const rx=p.radius, ry=p.radius*p.tiltY;
-      ring.style.cssText=`
-        width:${rx*2}px; height:${ry*2}px;
-        left:${1500-rx}px; top:${1500-ry}px;
-      `;
+      ring.style.cssText = `width:${rx*2}px;height:${ry*2}px;left:${1500-rx}px;top:${1500-ry}px;`;
       universe.appendChild(ring);
     });
 
     // Planet elements
-    planetEls=PLANETS.map(p=>{
-      const wrap=document.createElement('div');
-      wrap.className='planet-wrap';
-      wrap.innerHTML=`
+    planetEls = PLANETS.map(p => {
+      const wrap = document.createElement('div');
+      wrap.className = 'planet-wrap';
+      wrap.innerHTML = `
         <div class="planet-orb" style="box-shadow:0 0 22px ${p.glow},0 0 50px ${p.glow.replace('.55','0.2').replace('.5','0.18').replace('.45','0.15')}">${p.emoji}</div>
         <span class="planet-label">${p.label}</span>
       `;
-      wrap.addEventListener('click', e=>{ e.stopPropagation(); if(!hasDragged) openModal(p); });
+      wrap.addEventListener('click', e => { e.stopPropagation(); if(!hasDragged) openModal(p); });
       universe.appendChild(wrap);
-      return {el:wrap, data:p};
+      return { el:wrap, data:p };
     });
   }
 
   function animateSolar(ts){
-    planetEls.forEach(({el,data:p})=>{
-      const angle=p.startAngle+(ts/p.period)*Math.PI*2;
-      const x=1500+Math.cos(angle)*p.radius;
-      const y=1500+Math.sin(angle)*p.radius*p.tiltY;
-      el.style.left=x+'px';
-      el.style.top =y+'px';
-      // Depth: planets below center are in front
-      el.style.zIndex=Math.round(y);
+    planetEls.forEach(({el, data:p}) => {
+      const angle = p.startAngle + (ts/p.period)*Math.PI*2;
+      const x = 1500 + Math.cos(angle)*p.radius;
+      const y = 1500 + Math.sin(angle)*p.radius*p.tiltY;
+      el.style.left = x+'px';
+      el.style.top  = y+'px';
+      el.style.zIndex = Math.round(y);
     });
-    solarRAF=requestAnimationFrame(animateSolar);
+    requestAnimationFrame(animateSolar);
   }
 
   function showSolar(){
     buildSolar();
+    buildAudioRing();
     solarWrap.classList.add('visible');
-    solarRAF=requestAnimationFrame(animateSolar);
-    // Fade drag hint after 4s
-    setTimeout(()=>{ dragHint.style.opacity='0'; }, 4000);
+    requestAnimationFrame(animateSolar);
+    setTimeout(() => { dragHint.style.opacity='0'; }, 4000);
   }
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -635,7 +681,7 @@
   let isDragging=false, hasDragged=false;
   const MAX_DRAG=500;
 
-  function clamp(v,min,max){ return Math.min(Math.max(v,min),max); }
+  function clamp(v,mn,mx){ return Math.min(Math.max(v,mn),mx); }
   function applyDrag(){ universe.style.transform=`translate(${dragX}px,${dragY}px)`; }
 
   function onDragStart(x,y){
@@ -648,17 +694,13 @@
     const nx=clamp(x-startX,-MAX_DRAG,MAX_DRAG);
     const ny=clamp(y-startY,-MAX_DRAG,MAX_DRAG);
     if(Math.abs(nx-dragX)>3||Math.abs(ny-dragY)>3) hasDragged=true;
-    dragX=nx; dragY=ny;
-    applyDrag();
+    dragX=nx; dragY=ny; applyDrag();
   }
   function onDragEnd(){ isDragging=false; universe.classList.remove('dragging'); }
 
-  // Mouse
   universe.addEventListener('mousedown', e=>onDragStart(e.clientX,e.clientY));
   window.addEventListener('mousemove',   e=>onDragMove(e.clientX,e.clientY));
   window.addEventListener('mouseup',     ()=>onDragEnd());
-
-  // Touch
   universe.addEventListener('touchstart', e=>{ const t=e.touches[0]; onDragStart(t.clientX,t.clientY); },{passive:true});
   universe.addEventListener('touchmove',  e=>{ e.preventDefault(); const t=e.touches[0]; onDragMove(t.clientX,t.clientY); },{passive:false});
   universe.addEventListener('touchend',   ()=>onDragEnd());
@@ -684,25 +726,27 @@
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      AUDIO PLAYER
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  const song=document.getElementById('song');
-  const playBtn=document.getElementById('playBtn');
-  const progressFill=document.getElementById('progressFill');
-  let isPlaying=false;
+  const song         = document.getElementById('song');
+  const playBtn      = document.getElementById('playBtn');
+  const progressFill = document.getElementById('progressFill');
+  let isPlaying      = false;
 
-  playBtn.addEventListener('click',e=>{
+  playBtn.addEventListener('click', e => {
     e.stopPropagation();
-    isPlaying?(song.pause(),playBtn.textContent='▶'):(song.play(),playBtn.textContent='⏸');
-    isPlaying=!isPlaying;
+    isPlaying ? (song.pause(), playBtn.textContent='▶') : (song.play(), playBtn.textContent='⏸');
+    isPlaying = !isPlaying;
   });
-  song.addEventListener('play', ()=>{isPlaying=true;  playBtn.textContent='⏸';});
-  song.addEventListener('pause',()=>{isPlaying=false; playBtn.textContent='▶';});
-  song.addEventListener('timeupdate',()=>{ if(song.duration) progressFill.style.width=(song.currentTime/song.duration*100)+'%'; });
+  song.addEventListener('play',  ()=>{ isPlaying=true;  playBtn.textContent='⏸'; });
+  song.addEventListener('pause', ()=>{ isPlaying=false; playBtn.textContent='▶'; });
+  song.addEventListener('timeupdate', ()=>{
+    if(song.duration) progressFill.style.width=(song.currentTime/song.duration*100)+'%';
+  });
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      HERO CLICK → WORMHOLE
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  hero.addEventListener('click',()=>{
-    if(!wormRunning&&!solarWrap.classList.contains('visible')){
+  hero.addEventListener('click', ()=>{
+    if(!wormRunning && !solarWrap.classList.contains('visible')){
       song.play().then(()=>song.pause()).catch(()=>{});
       startWorm();
     }
@@ -714,7 +758,7 @@
   function loop(t){ drawStars(t); requestAnimationFrame(loop); }
 
   resizeSC(); resizeWC();
-  window.addEventListener('resize',()=>{ resizeSC(); resizeWC(); });
+  window.addEventListener('resize', ()=>{ resizeSC(); resizeWC(); });
   requestAnimationFrame(loop);
 })();
 </script>
