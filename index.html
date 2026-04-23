@@ -811,7 +811,12 @@ transform-origin: 50% 0%;
         <div class="planet-orb" style="box-shadow:0 0 22px ${p.glow},0 0 50px ${p.glow.replace('.55','0.2').replace('.5','0.18').replace('.45','0.15')}">${p.emoji}</div>
         <span class="planet-label">${p.label}</span>
       `;
-      wrap.addEventListener('click',e=>{e.stopPropagation();if(!hasDragged)openModal(p);});
+      wrap.addEventListener('click',e=>{
+  e.stopPropagation();
+  if(!hasDragged){
+    p.id===4 ? showConstellation() : openModal(p);
+  }
+});
       universe.appendChild(wrap);
       return{el:wrap,data:p};
     });
