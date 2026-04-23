@@ -69,6 +69,90 @@ transform-origin: 50% 0%;
       opacity:0.35;
     }
 
+
+
+    #constellation {
+  position:fixed; inset:0; z-index:9;
+  opacity:0; pointer-events:none;
+  transition:opacity .6s ease;
+}
+#constellation.visible { opacity:1; pointer-events:all; }
+
+#constOverlay {
+  position:absolute; inset:0;
+  background:rgba(0,0,12,.6);
+}
+
+#constLines {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  pointer-events:none; overflow:visible;
+}
+
+#constClose {
+  position:absolute;
+  top:clamp(14px,4vw,24px); left:clamp(14px,4vw,24px);
+  width:42px; height:42px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  color:rgba(255,255,255,.75); font-size:1.1rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transform:scale(.8);
+  transition:opacity .4s .9s ease, transform .4s .9s cubic-bezier(.22,1,.36,1), background .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+#constellation.visible #constClose { opacity:1; transform:scale(1); }
+#constClose:active { background:rgba(255,255,255,.2); transform:scale(.9) !important; }
+
+#constTitle {
+  position:absolute;
+  top:clamp(20px,4vw,28px); left:50%;
+  transform:translateX(-50%);
+  font-size:clamp(.62rem,1.8vw,.74rem);
+  letter-spacing:.22em; text-transform:uppercase;
+  color:rgba(180,150,255,.45); white-space:nowrap;
+  pointer-events:none;
+  opacity:0; transition:opacity .5s 1.4s ease;
+}
+#constellation.visible #constTitle { opacity:1; }
+
+.const-line {
+  stroke:rgba(160,120,255,.3);
+  stroke-width:1; fill:none; stroke-linecap:round;
+}
+
+.const-node {
+  position:absolute; border-radius:50%; overflow:hidden;
+  border:1.5px solid rgba(180,140,255,.5);
+  box-shadow:0 0 18px rgba(130,70,255,.4), 0 0 36px rgba(80,50,200,.2);
+  transform:translate(-50%,-50%) scale(0);
+  opacity:0;
+  transition:transform .55s cubic-bezier(.22,1,.36,1), opacity .4s ease;
+  cursor:pointer; -webkit-tap-highlight-color:transparent;
+  will-change:transform;
+}
+.const-node.visible {
+  transform:translate(-50%,-50%) scale(1);
+  opacity:1;
+}
+.const-node:active { transform:translate(-50%,-50%) scale(.9) !important; }
+.const-node img { width:100%; height:100%; object-fit:cover; display:block; }
+
+.const-glow {
+  position:absolute; border-radius:50%;
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  opacity:0; transition:opacity .5s ease;
+  animation:cGlow 3s ease-in-out infinite;
+}
+.const-glow.visible { opacity:1; }
+@keyframes cGlow {
+  0%,100%{ transform:translate(-50%,-50%) scale(1); opacity:.35; }
+  50%    { transform:translate(-50%,-50%) scale(1.22); opacity:.65; }
+}
+    
+    
     #hero {
       position:fixed; inset:0; z-index:2;
       display:flex; align-items:center; justify-content:center;
@@ -379,6 +463,10 @@ transform-origin: 50% 0%;
 <canvas id="wormCanvas"></canvas>
 <div id="flash"></div>
 
+
+
+
+  
 <div id="solarWrap">
   <div id="universe">
     <div id="centralStar">
@@ -391,6 +479,15 @@ transform-origin: 50% 0%;
   <div id="dragHint">✦ drag to explore ✦</div>
 </div>
 
+
+
+<div id="constellation">
+  <div id="constOverlay"></div>
+  <svg id="constLines"></svg>
+  <button id="constClose">←</button>
+  <p id="constTitle">my beautiful vernice</p>
+</div>
+  
 <div id="player">
   <button id="playBtn">▶</button>
   <span class="player-label">our song 🎵</span>
@@ -805,6 +902,101 @@ transform-origin: 50% 0%;
       startWorm();
     }
   });
+
+
+  /* ── CONSTELLATION ── */
+// 🔁 Replace src values with your actual photo filenames
+const CONST_PHOTOS = [
+  { px:.20, py:.24, src:'IMG_9354.png' },
+  { px:.72, py:.18, src:'IMG_9354.png' },
+  { px:.50, py:.40, src:'IMG_9354.png' },
+  { px:.18, py:.60, src:'IMG_9354.png' },
+  { px:.76, py:.57, src:'IMG_9354.png' },
+  { px:.44, py:.74, src:'IMG_9354.png' },
+];
+const CONST_EDGES = [[0,2],[1,2],[2,3],[2,4],[3,5],[4,5]];
+
+const constWrap  = document.getElementById('constellation');
+let constNodeEls = [], constGlowEls = [], constLineEls = [];
+let constBuilt   = false;
+
+function buildConstellation() {
+  if (constBuilt) return;
+  constBuilt = true;
+  const svg  = document.getElementById('constLines');
+  const W    = innerWidth, H = innerHeight;
+  const pSz  = Math.min(Math.max(W * .18, 58), 88);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  CONST_EDGES.forEach(([a, b], i) => {
+    const ax = CONST_PHOTOS[a].px * W, ay = CONST_PHOTOS[a].py * H;
+    const bx = CONST_PHOTOS[b].px * W, by = CONST_PHOTOS[b].py * H;
+    const len = Math.hypot(bx - ax, by - ay);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', ax); line.setAttribute('y1', ay);
+    line.setAttribute('x2', bx); line.setAttribute('y2', by);
+    line.className = 'const-line';
+    line.style.strokeDasharray  = len;
+    line.style.strokeDashoffset = len;
+    line.style.transition = `stroke-dashoffset .8s ${.1 + i * .18}s ease`;
+    svg.appendChild(line);
+    constLineEls.push(line);
+  });
+
+  CONST_PHOTOS.forEach((p, i) => {
+    const x = p.px * W, y = p.py * H;
+    const glow = document.createElement('div');
+    glow.className = 'const-glow';
+    glow.style.cssText = `
+      left:${x}px; top:${y}px;
+      width:${pSz + 30}px; height:${pSz + 30}px;
+      background:radial-gradient(circle, rgba(150,90,255,.22) 0%, transparent 70%);
+      animation-delay:${i * .35}s;
+    `;
+    constWrap.appendChild(glow);
+    constGlowEls.push(glow);
+
+    const node = document.createElement('div');
+    node.className = 'const-node';
+    node.style.cssText = `left:${x}px; top:${y}px; width:${pSz}px; height:${pSz}px;`;
+    node.style.transitionDelay = `${.28 + i * .13}s`;
+    const img = document.createElement('img');
+    img.src = p.src; img.alt = '';
+    node.appendChild(img);
+    constWrap.appendChild(node);
+    constNodeEls.push(node);
+  });
+}
+
+function showConstellation() {
+  buildConstellation();
+  solarWrap.style.opacity = '.25';
+  constWrap.classList.add('visible');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    constLineEls.forEach(l => { l.style.strokeDashoffset = '0'; });
+    constNodeEls.forEach(n => n.classList.add('visible'));
+    constGlowEls.forEach(g => g.classList.add('visible'));
+  }));
+}
+
+function hideConstellation() {
+  solarWrap.style.opacity = '';
+  constWrap.classList.remove('visible');
+  constNodeEls.forEach(n => { n.style.transitionDelay = '0s'; n.classList.remove('visible'); });
+  constGlowEls.forEach(g => g.classList.remove('visible'));
+  constLineEls.forEach(l => {
+    l.style.transition = 'none';
+    l.style.strokeDashoffset = l.style.strokeDasharray;
+  });
+  setTimeout(() => {
+    constLineEls.forEach((l, i) => {
+      l.style.transition = `stroke-dashoffset .8s ${.1 + i * .18}s ease`;
+    });
+    constNodeEls.forEach((n, i) => { n.style.transitionDelay = `${.28 + i * .13}s`; });
+  }, 600);
+}
+
+document.getElementById('constClose').addEventListener('click', hideConstellation);
 
   /* ── MAIN LOOP ── */
   function loop(t){drawStars(t);requestAnimationFrame(loop);}
