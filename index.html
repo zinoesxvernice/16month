@@ -510,14 +510,40 @@
   const progressFill = document.getElementById('progressFill');
   let   isPlaying    = false;
 
-  /* ── AUDIO UNLOCK (iOS fix) ── */
-  let audioUnlocked = false;
-function unlockAudio() {
-  if (audioUnlocked) return;
-  audioUnlocked = true;
-  connectAudio();                                          // sets up the AudioContext
-  song.play().then(() => song.pause()).catch(() => {});    // prime on the same gesture
-}
+  /* ── AUDIO (iOS fix) ──
+     Strategy: call song.play() FIRST inside the tap gesture before any
+     Web Audio API work. Then connect the analyser 300 ms later — by then
+     the AudioContext has resumed and the element is already playing.      */
+  let audioUnlocked   = false;
+  let audioCtx        = null;
+  let analyser        = null;
+  let dataArray       = null;
+  let audioConnected  = false;
+
+  function connectAudio() {
+    if (audioConnected) return;
+    audioConnected = true;
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioCtx.resume();
+      const source = audioCtx.createMediaElementSource(song);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 64;
+      analyser.smoothingTimeConstant = 0.82;
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+      source.connect(analyser);
+      analyser.connect(audioCtx.destination);
+    } catch(e) { console.warn('Web Audio API error', e); }
+  }
+
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    // Play the bare <audio> element first — iOS grants permission here
+    song.play().catch(() => {});
+    // Connect Web Audio graph after a short delay so play() isn't blocked
+    setTimeout(() => connectAudio(), 300);
+  }
 
   const PLANETS = [
     {
@@ -697,16 +723,13 @@ function unlockAudio() {
     else endWorm();
   }
 
-  // FIXED
-function endWorm(){
+  function endWorm(){
     flash.style.transition='opacity 0s'; flash.style.opacity='1';
     wCtx.clearRect(0,0,WC.width,WC.height); WC.classList.remove('active');
     setTimeout(() => {
       flash.style.transition = 'opacity 1s ease'; flash.style.opacity = '0';
       showSolar();
       document.getElementById('player').classList.add('visible');
-      connectAudio();
-      song.play().catch(() => {});
       wormRunning = false;
     }, 80);
   }
@@ -722,11 +745,9 @@ function endWorm(){
   }
 
   /* ── AUDIO VISUALIZER ── */
-  let analyser, dataArray;
   let barEls=[], floatingBarEls=[];
 
   function buildAudioRing(){
-    /* central star bars */
     const ring = document.getElementById('audioRing');
     ring.innerHTML = '';
     barEls = [];
@@ -738,7 +759,6 @@ function endWorm(){
       barEls.push(bar);
     }
 
-    /* floating star bars */
     const fring = document.getElementById('floatingRing');
     fring.innerHTML = '';
     floatingBarEls = [];
@@ -749,21 +769,6 @@ function endWorm(){
       fring.appendChild(bar);
       floatingBarEls.push(bar);
     }
-  }
-
-function connectAudio(){
-    if(analyser) return;
-    try{
-      const ctx=new(window.AudioContext||window.webkitAudioContext)();
-      ctx.resume();
-      const source=ctx.createMediaElementSource(song);
-      analyser=ctx.createAnalyser();
-      analyser.fftSize=64;
-      analyser.smoothingTimeConstant=0.82;
-      dataArray=new Uint8Array(analyser.frequencyBinCount);
-      source.connect(analyser);
-      analyser.connect(ctx.destination);
-    }catch(e){ console.warn('Web Audio API not supported',e); }
   }
 
   function tickVisualizer(){
@@ -885,9 +890,8 @@ function connectAudio(){
   /* ── AUDIO PLAYER ── */
   playBtn.addEventListener('click',e=>{
     e.stopPropagation();
-    connectAudio();
-    isPlaying?(song.pause(),playBtn.textContent='▶'):(song.play(),playBtn.textContent='⏸');
-    isPlaying=!isPlaying;
+    if(!audioUnlocked){ unlockAudio(); return; }
+    isPlaying ? song.pause() : song.play().catch(()=>{});
   });
   song.addEventListener('play', ()=>{isPlaying=true; playBtn.textContent='⏸';});
   song.addEventListener('pause',()=>{isPlaying=false;playBtn.textContent='▶';});
