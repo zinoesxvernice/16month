@@ -539,19 +539,16 @@
     if (audioUnlocked) return;
     audioUnlocked = true;
     try {
-      // Create the AudioContext here so we can reuse it in connectAudio
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       audioCtx.resume();
-      // Play a completely silent 1-sample buffer — unlocks iOS audio
-      // without touching song.play() so there's no audible blip
-      const buf = audioCtx.createBuffer(1, 1, 22050);
-      const src = audioCtx.createBufferSource();
-      src.buffer = buf;
-      src.connect(audioCtx.destination);
-      src.start(0);
-      // Wire up the analyser after context is running
       setTimeout(() => connectAudio(), 300);
     } catch(e) { console.warn('Audio unlock error', e); }
+    // Unlock the <audio> element during this user gesture (iOS requires it).
+    // Mute before playing so there's zero audible blip even if pause() is slightly late.
+    song.muted = true;
+    song.play()
+      .then(() => { song.pause(); song.currentTime = 0; song.muted = false; })
+      .catch(() => { song.muted = false; });
   }
 
   const PLANETS = [
