@@ -536,12 +536,12 @@
     } catch(e) { console.warn('Web Audio API error', e); }
   }
 
-function unlockAudio() {
+  function unlockAudio() {
     if (audioUnlocked) return;
     audioUnlocked = true;
-    // Prime the element silently so iOS grants permission for later play()
-    song.play().then(() => song.pause()).catch(() => {});
-    // Connect Web Audio graph after a short delay
+    // Play the bare <audio> element first — iOS grants permission here
+    song.play().catch(() => {});
+    // Connect Web Audio graph after a short delay so play() isn't blocked
     setTimeout(() => connectAudio(), 300);
   }
 
@@ -723,14 +723,13 @@ function unlockAudio() {
     else endWorm();
   }
 
- function endWorm(){
+  function endWorm(){
     flash.style.transition='opacity 0s'; flash.style.opacity='1';
     wCtx.clearRect(0,0,WC.width,WC.height); WC.classList.remove('active');
     setTimeout(() => {
       flash.style.transition = 'opacity 1s ease'; flash.style.opacity = '0';
       showSolar();
       document.getElementById('player').classList.add('visible');
-      song.play().catch(() => {});  // ← starts after wormhole
       wormRunning = false;
     }, 80);
   }
@@ -909,14 +908,15 @@ function unlockAudio() {
   });
 
   /* ── CONSTELLATION ── */
- const CONST_PHOTOS = [
-    { px:.18, py:.18, src:'IMG_9354.png' },  // 0 — top-left
-    { px:.38, py:.40, src:'IMG_9331.png' },  // 1 — mid-left (going down)
-    { px:.50, py:.62, src:'IMG_9355.png' },  // 2 — bottom center (V tip)
-    { px:.62, py:.40, src:'IMG_9505.png' },  // 3 — mid-right (going up)
-    { px:.82, py:.18, src:'IMG_9504.png' },  // 4 — top-right
+  const CONST_PHOTOS = [
+    { px:.20, py:.24, src:'IMG_9354.png' },
+    { px:.72, py:.18, src:'IMG_9331.png' },
+    { px:.50, py:.40, src:'IMG_9355.png' },
+    { px:.18, py:.60, src:'IMG_9505.png' },
+    { px:.76, py:.57, src:'IMG_9504.png' },
+    { px:.44, py:.74, src:'IMG_9351.png' },
   ];
-  const CONST_EDGES = [[0,1],[1,2],[2,3],[3,4]];
+  const CONST_EDGES = [[0,2],[1,2],[2,3],[2,4],[3,5],[4,5]];
 
   const constWrap  = document.getElementById('constellation');
   let constNodeEls = [], constGlowEls = [], constLineEls = [];
