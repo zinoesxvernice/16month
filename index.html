@@ -909,15 +909,14 @@ function unlockAudio() {
   });
 
   /* ── CONSTELLATION ── */
-  const CONST_PHOTOS = [
-    { px:.20, py:.24, src:'IMG_9354.png' },
-    { px:.72, py:.18, src:'IMG_9331.png' },
-    { px:.50, py:.40, src:'IMG_9355.png' },
-    { px:.18, py:.60, src:'IMG_9505.png' },
-    { px:.76, py:.57, src:'IMG_9504.png' },
-    { px:.44, py:.74, src:'IMG_9351.png' },
+ const CONST_PHOTOS = [
+    { px:.18, py:.18, src:'IMG_9354.png' },  // 0 — top-left
+    { px:.38, py:.40, src:'IMG_9331.png' },  // 1 — mid-left (going down)
+    { px:.50, py:.62, src:'IMG_9355.png' },  // 2 — bottom center (V tip)
+    { px:.62, py:.40, src:'IMG_9505.png' },  // 3 — mid-right (going up)
+    { px:.82, py:.18, src:'IMG_9504.png' },  // 4 — top-right
   ];
-  const CONST_EDGES = [[0,2],[1,2],[2,3],[2,4],[3,5],[4,5]];
+  const CONST_EDGES = [[0,1],[1,2],[2,3],[3,4]];
 
   const constWrap  = document.getElementById('constellation');
   let constNodeEls = [], constGlowEls = [], constLineEls = [];
