@@ -512,8 +512,8 @@
 
   /* ── AUDIO (iOS fix) ──
      Strategy: call song.play() FIRST inside the tap gesture before any
-     Web Audio API work. Then connect the analyser 300 ms later — by then
-     the AudioContext has resumed and the element is already playing.      */
+     Web Audio API work, then immediately pause to unlock without audible
+     playback during the wormhole. Actual playback starts in endWorm().   */
   let audioUnlocked   = false;
   let audioCtx        = null;
   let analyser        = null;
@@ -539,9 +539,9 @@
   function unlockAudio() {
     if (audioUnlocked) return;
     audioUnlocked = true;
-    // Play the bare <audio> element first — iOS grants permission here
-    song.play().catch(() => {});
-    // Connect Web Audio graph after a short delay so play() isn't blocked
+    // Play then immediately pause — satisfies iOS permission without audible sound
+    song.play().then(() => { song.pause(); song.currentTime = 0; }).catch(() => {});
+    // Connect Web Audio graph after a short delay
     setTimeout(() => connectAudio(), 300);
   }
 
@@ -730,6 +730,8 @@
       flash.style.transition = 'opacity 1s ease'; flash.style.opacity = '0';
       showSolar();
       document.getElementById('player').classList.add('visible');
+      // Start music now that the wormhole is done
+      song.play().catch(() => {});
       wormRunning = false;
     }, 80);
   }
