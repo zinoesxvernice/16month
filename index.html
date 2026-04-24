@@ -425,6 +425,34 @@
       color:rgba(255,255,255,.3);
     }
 
+    /* ── IMAGE MODAL ── */
+    #imgModal {
+      position:fixed; inset:0; z-index:50;
+      background:rgba(0,0,0,.88);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none;
+      transition:opacity .3s ease;
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+      cursor:zoom-out;
+    }
+    #imgModal.open {
+      opacity:1;
+      pointer-events:all;
+    }
+    #imgModal img {
+      max-width:88vw;
+      max-height:88vh;
+      border-radius:16px;
+      box-shadow:0 0 60px rgba(180,120,255,.45), 0 0 120px rgba(100,60,200,.2);
+      transform:scale(.92);
+      transition:transform .35s cubic-bezier(.22,1,.36,1);
+      display:block;
+    }
+    #imgModal.open img {
+      transform:scale(1);
+    }
+
     audio { display:none; }
   </style>
 </head>
@@ -497,6 +525,11 @@
   </div>
 </div>
 
+<!-- IMAGE MODAL -->
+<div id="imgModal" onclick="this.classList.remove('open')">
+  <img id="imgModalSrc" src="" alt="">
+</div>
+
 <audio id="song" src="Miraidempa - Unslept.mp3" preload="auto" loop></audio>
 
 <script>
@@ -510,10 +543,6 @@
   const progressFill = document.getElementById('progressFill');
   let   isPlaying    = false;
 
-  /* ── AUDIO (iOS fix) ──
-     Strategy: call song.play() FIRST inside the tap gesture before any
-     Web Audio API work, then immediately pause to unlock without audible
-     playback during the wormhole. Actual playback starts in endWorm().   */
   let audioUnlocked   = false;
   let wormDone        = false;
   let audioCtx        = null;
@@ -525,7 +554,6 @@
     if (audioConnected) return;
     audioConnected = true;
     try {
-      // Reuse the AudioContext already created in unlockAudio
       const source = audioCtx.createMediaElementSource(song);
       analyser = audioCtx.createAnalyser();
       analyser.fftSize = 64;
@@ -544,12 +572,26 @@
       audioCtx.resume();
       setTimeout(() => connectAudio(), 300);
     } catch(e) { console.warn('Audio unlock error', e); }
-    // Unlock the <audio> element during this user gesture (iOS requires it).
-    // Mute before playing so there's zero audible blip even if pause() is slightly late.
     song.muted = true;
     song.play()
       .then(() => { if (!wormDone) { song.pause(); song.currentTime = 0; } song.muted = false; })
       .catch(() => { song.muted = false; });
+  }
+
+  /* ── IMG LINK PARSER ──
+     Usage in letter body: [IMGfilename.png](your text here)
+     Renders as a styled link that opens the image in a fullscreen modal.
+  */
+  function parseImgLinks(html) {
+    return html.replace(/\[IMG([^\]]+)\]\(([^)]+)\)/g, (_, src, text) => {
+      const safeSrc  = src.replace(/'/g, "\\'");
+      return `<a href="#" onclick="event.preventDefault();event.stopPropagation();
+        document.getElementById('imgModalSrc').src='${safeSrc}';
+        document.getElementById('imgModal').classList.add('open');"
+        style="color:#ccaaff;text-decoration:underline;text-decoration-style:dotted;
+               text-underline-offset:3px;cursor:pointer;font-weight:600;"
+        >${text}</a>`;
+    });
   }
 
   const PLANETS = [
@@ -737,7 +779,6 @@
       flash.style.transition = 'opacity 1s ease'; flash.style.opacity = '0';
       showSolar();
       document.getElementById('player').classList.add('visible');
-      // Mark worm done before play — prevents the unlock .then() from pausing mid-playback
       wormDone = true;
       song.play().catch(() => {});
       wormRunning = false;
@@ -882,9 +923,9 @@
   const modalClose=document.getElementById('modalClose');
 
   function openModal(p){
-    document.getElementById('mIcon').textContent =p.emoji;
-    document.getElementById('mTitle').textContent=p.title;
-    document.getElementById('mBody').innerHTML   =p.body;
+    document.getElementById('mIcon').textContent  = p.emoji;
+    document.getElementById('mTitle').textContent = p.title;
+    document.getElementById('mBody').innerHTML    = parseImgLinks(p.body);
     modal.classList.add('open');
     document.getElementById('floatingStar').classList.add('visible');
   }
@@ -895,7 +936,14 @@
 
   modalClose.addEventListener('click',closeModal);
   modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      // close img modal first if open, then letter modal
+      const imgModal = document.getElementById('imgModal');
+      if(imgModal.classList.contains('open')) imgModal.classList.remove('open');
+      else closeModal();
+    }
+  });
 
   /* ── AUDIO PLAYER ── */
   playBtn.addEventListener('click',e=>{
