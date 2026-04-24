@@ -524,8 +524,7 @@
     if (audioConnected) return;
     audioConnected = true;
     try {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      audioCtx.resume();
+      // Reuse the AudioContext already created in unlockAudio
       const source = audioCtx.createMediaElementSource(song);
       analyser = audioCtx.createAnalyser();
       analyser.fftSize = 64;
@@ -539,10 +538,20 @@
   function unlockAudio() {
     if (audioUnlocked) return;
     audioUnlocked = true;
-    // Play then immediately pause — satisfies iOS permission without audible sound
-    song.play().then(() => { song.pause(); song.currentTime = 0; }).catch(() => {});
-    // Connect Web Audio graph after a short delay
-    setTimeout(() => connectAudio(), 300);
+    try {
+      // Create the AudioContext here so we can reuse it in connectAudio
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioCtx.resume();
+      // Play a completely silent 1-sample buffer — unlocks iOS audio
+      // without touching song.play() so there's no audible blip
+      const buf = audioCtx.createBuffer(1, 1, 22050);
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      src.connect(audioCtx.destination);
+      src.start(0);
+      // Wire up the analyser after context is running
+      setTimeout(() => connectAudio(), 300);
+    } catch(e) { console.warn('Audio unlock error', e); }
   }
 
   const PLANETS = [
