@@ -515,6 +515,7 @@
      Web Audio API work, then immediately pause to unlock without audible
      playback during the wormhole. Actual playback starts in endWorm().   */
   let audioUnlocked   = false;
+  let wormDone        = false;
   let audioCtx        = null;
   let analyser        = null;
   let dataArray       = null;
@@ -547,7 +548,7 @@
     // Mute before playing so there's zero audible blip even if pause() is slightly late.
     song.muted = true;
     song.play()
-      .then(() => { song.pause(); song.currentTime = 0; song.muted = false; })
+      .then(() => { if (!wormDone) { song.pause(); song.currentTime = 0; } song.muted = false; })
       .catch(() => { song.muted = false; });
   }
 
@@ -736,7 +737,8 @@
       flash.style.transition = 'opacity 1s ease'; flash.style.opacity = '0';
       showSolar();
       document.getElementById('player').classList.add('visible');
-      // Start music now that the wormhole is done
+      // Mark worm done before play — prevents the unlock .then() from pausing mid-playback
+      wormDone = true;
       song.play().catch(() => {});
       wormRunning = false;
     }, 80);
