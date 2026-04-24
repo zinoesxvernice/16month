@@ -536,12 +536,12 @@
     } catch(e) { console.warn('Web Audio API error', e); }
   }
 
-  function unlockAudio() {
+function unlockAudio() {
     if (audioUnlocked) return;
     audioUnlocked = true;
-    // Play the bare <audio> element first — iOS grants permission here
-    song.play().catch(() => {});
-    // Connect Web Audio graph after a short delay so play() isn't blocked
+    // Prime the element silently so iOS grants permission for later play()
+    song.play().then(() => song.pause()).catch(() => {});
+    // Connect Web Audio graph after a short delay
     setTimeout(() => connectAudio(), 300);
   }
 
@@ -723,13 +723,14 @@
     else endWorm();
   }
 
-  function endWorm(){
+ function endWorm(){
     flash.style.transition='opacity 0s'; flash.style.opacity='1';
     wCtx.clearRect(0,0,WC.width,WC.height); WC.classList.remove('active');
     setTimeout(() => {
       flash.style.transition = 'opacity 1s ease'; flash.style.opacity = '0';
       showSolar();
       document.getElementById('player').classList.add('visible');
+      song.play().catch(() => {});  // ← starts after wormhole
       wormRunning = false;
     }, 80);
   }
