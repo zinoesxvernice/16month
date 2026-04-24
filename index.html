@@ -512,12 +512,12 @@
 
   /* ── AUDIO UNLOCK (iOS fix) ── */
   let audioUnlocked = false;
-  function unlockAudio() {
-    if (audioUnlocked) return;
-    audioUnlocked = true;
-    const tmpCtx = new (window.AudioContext || window.webkitAudioContext)();
-    tmpCtx.resume().then(() => tmpCtx.close());
-  }
+function unlockAudio() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  connectAudio();                                          // sets up the AudioContext
+  song.play().then(() => song.pause()).catch(() => {});    // prime on the same gesture
+}
 
   const PLANETS = [
     {
@@ -697,17 +697,18 @@
     else endWorm();
   }
 
-  function endWorm(){
+  // FIXED
+function endWorm(){
     flash.style.transition='opacity 0s'; flash.style.opacity='1';
     wCtx.clearRect(0,0,WC.width,WC.height); WC.classList.remove('active');
-    setTimeout(()=>{
-      flash.style.transition='opacity 1s ease'; flash.style.opacity='0';
+    setTimeout(() => {
+      flash.style.transition = 'opacity 1s ease'; flash.style.opacity = '0';
       showSolar();
       document.getElementById('player').classList.add('visible');
       connectAudio();
-      setTimeout(() => { song.play().catch(()=>{}); }, 300);
-      wormRunning=false;
-    },80);
+      song.play().catch(() => {});
+      wormRunning = false;
+    }, 80);
   }
 
   function startWorm(){
@@ -750,10 +751,11 @@
     }
   }
 
-  function connectAudio(){
+function connectAudio(){
     if(analyser) return;
     try{
       const ctx=new(window.AudioContext||window.webkitAudioContext)();
+      ctx.resume();
       const source=ctx.createMediaElementSource(song);
       analyser=ctx.createAnalyser();
       analyser.fftSize=64;
