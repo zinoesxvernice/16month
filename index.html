@@ -578,19 +578,12 @@
       .catch(() => { song.muted = false; });
   }
 
-  /* ── IMG LINK PARSER ──
-     Supports two formats:
-       1. [filename.png](link text)          ← just the filename with image extension
-       2. [IMGfilename.png](link text)       ← legacy format with IMG prefix
-     Both open the image in a fullscreen modal.
-  */
+  /* ── IMG LINK PARSER ── */
   function parseImgLinks(html) {
-    // Match [IMG...](text) — legacy prefix format
     html = html.replace(/\[IMG([^\]]+)\]\(([^)]+)\)/g, (_, src, text) => {
       const safeSrc = src.replace(/'/g, "\\'");
       return makeImgLink(safeSrc, text);
     });
-    // Match [filename.ext](text) where ext is a known image extension
     html = html.replace(/\[([^\]]+\.(png|jpe?g|gif|webp|avif|heic))\]\(([^)]+)\)/gi, (_, src, _ext, text) => {
       const safeSrc = src.replace(/'/g, "\\'");
       return makeImgLink(safeSrc, text);
@@ -607,10 +600,11 @@
       >${text}</a>`;
   }
 
+  // Only Letter and Pictures planets remain
   const PLANETS = [
     {
       id:1, emoji:'💌', label:'Letter',
-      radius:145, period:13000, startAngle:0.5, tiltY:0.38,
+      radius:155, period:15000, startAngle:0.5, tiltY:0.38,
       glow:'rgba(249,168,212,.55)',
       title:'a letter to my dear vernice,',
       body:`
@@ -622,46 +616,10 @@
       `
     },
     {
-      id:2, emoji:'🎵', label:'Our Song',
-      radius:230, period:20000, startAngle:2.2, tiltY:0.35,
-      glow:'rgba(167,139,250,.55)',
-      title:'Our Song',
-      body:`
-        <p>This song reminds me of <strong>us</strong> — the late nights,
-        the quiet moments, every time it came on and I thought of you.</p>
-        <p>Whenever you hear it, know that I'm thinking of you. 🎶</p>
-        <div style="margin-top:20px; text-align:center;">
-          <button onclick="const s=document.getElementById('song');
-            s.paused?(s.play(),this.textContent='⏸  pause'):(s.pause(),this.textContent='▶  play')"
-            style="padding:10px 28px; border-radius:100px; border:1px solid rgba(167,139,250,.5);
-            background:rgba(167,139,250,.15); color:#c4b5fd; font-family:inherit;
-            font-size:.9rem; cursor:pointer; letter-spacing:.05em;">
-            ▶&nbsp; play
-          </button>
-        </div>
-      `
-    },
-    {
-      id:3, emoji:'🌸', label:'Reasons',
-      radius:315, period:30000, startAngle:3.9, tiltY:0.32,
-      glow:'rgba(134,239,172,.5)',
-      title:'Why I Love You',
-      body:`
-        <ul class="modal-list">
-          <li>The way you laugh at your own jokes before the punchline</li>
-          <li>How you make everywhere feel like home</li>
-          <li>Your kindness — you give it so freely</li>
-          <li>The way you look when you're focused on something</li>
-          <li>That you always know exactly what I need to hear</li>
-          <li>Everything you don't even realize you do 💕</li>
-        </ul>
-      `
-    },
-    {
-      id:4, emoji:'📸', label:'Memories',
-      radius:400, period:40000, startAngle:1.3, tiltY:0.28,
+      id:4, emoji:'📸', label:'Pictures',
+      radius:280, period:35000, startAngle:1.3, tiltY:0.28,
       glow:'rgba(253,211,77,.45)',
-      title:'Our Memories',
+      title:'Our Pictures',
       body:`
         <p>Every moment with you is one I want to keep forever.</p>
         <p>More photos and memories coming here soon — our story,
@@ -977,7 +935,7 @@
     }
   });
 
-  /* ── CONSTELLATION ── */
+  /* ── CONSTELLATION (Pictures planet) ── */
   const CONST_PHOTOS = [
     { px:.20, py:.24, src:'IMG_9354.png' },
     { px:.72, py:.18, src:'IMG_9331.png' },
